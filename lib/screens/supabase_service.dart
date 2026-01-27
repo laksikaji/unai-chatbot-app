@@ -1,19 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/supabase_config.dart';
 
 class SupabaseService {
   static final SupabaseService _instance = SupabaseService._internal();
   factory SupabaseService() => _instance;
   SupabaseService._internal();
 
-  static const String supabaseUrl = 'https://ijjhukoejanhhnnkqwcw.supabase.co';
-  static const String supabaseAnonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqamh1a29lamFuaGhubmtxd2N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MjU3NTksImV4cCI6MjA4MTUwMTc1OX0.sprsKvUsPOhXKBn1hchUu7llUYfjJAJdyzLTp3XWlU4';
-
   late final SupabaseClient client;
 
   Future<void> initialize() async {
-    await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+    await Supabase.initialize(
+      url: SupabaseConfig.supabaseUrl,
+      anonKey: SupabaseConfig.supabaseAnonKey,
+    );
     client = Supabase.instance.client;
   }
 

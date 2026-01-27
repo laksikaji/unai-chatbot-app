@@ -26,3 +26,9 @@ pubspec.lock
 lib/oracleJdk-25/
 *.apk
 build/
+
+# Environment Variables
+.env
+
+# Sensitive Config Files
+lib/config/supabase_config.dart

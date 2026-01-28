@@ -204,24 +204,31 @@ class _AdminDashboardState extends State<AdminDashboard> {
             colors: [Color(0xFF0a1e5e), Color(0xFF1a3a8a)],
           ),
         ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  // Sync Google Sheets Card
-                  _buildSyncCard(),
-                  const SizedBox(height: 16),
+        child: Scrollbar(
+          thumbVisibility: true,
+          thickness: 8,
+          radius: const Radius.circular(4),
+          child: SingleChildScrollView(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      // Sync Google Sheets Card
+                      _buildSyncCard(),
+                      const SizedBox(height: 16),
 
-                  // Upload File Card
-                  _buildUploadCard(),
-                  const SizedBox(height: 16),
+                      // Upload File Card
+                      _buildUploadCard(),
+                      const SizedBox(height: 16),
 
-                  // API Usage Card
-                  _buildApiUsageCard(),
-                ],
+                      // API Usage Card
+                      _buildApiUsageCard(),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

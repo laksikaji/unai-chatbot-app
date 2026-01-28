@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'signup_screen.dart';
+import 'consent_screen.dart';
 import 'forget_password_screen.dart';
 import 'chat_screen.dart';
 import 'supabase_service.dart';
@@ -381,7 +381,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            const SignupScreen(),
+                                            const ConsentScreen(),
                                       ),
                                     );
                                   },

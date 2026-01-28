@@ -15,7 +15,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
     if (_selectedConsent == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('กรุณาเลือกตัวเลือก'),
+          content: Text('Please select an option'),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 2),
         ),
@@ -24,16 +24,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
     }
 
     if (_selectedConsent == 'agree') {
-      // ส่งค่า consent=true ไปหน้า SignupScreen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const SignupScreen()),
       );
     } else {
-      // ถ้าไม่ยินยอม กลับไปหน้า Home
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('คุณต้องยินยอมเพื่อดำเนินการลงทะเบียน'),
+          content: Text('You must agree to continue registration'),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 2),
         ),
@@ -43,7 +41,6 @@ class _ConsentScreenState extends State<ConsentScreen> {
   }
 
   void _handleCancel() {
-    // กดยกเลิก กลับไปหน้า Home
     Navigator.pop(context);
   }
 
@@ -51,6 +48,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -68,12 +67,12 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   gradient: const LinearGradient(
                     colors: [Color(0xFF2563eb), Color(0xFF1e40af)],
                   ),
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(32),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
+                      blurRadius: 60,
+                      offset: const Offset(0, 20),
                     ),
                   ],
                 ),
@@ -87,7 +86,6 @@ class _ConsentScreenState extends State<ConsentScreen> {
                       width: 200,
                       height: 120,
                     ),
-
                     const SizedBox(height: 16),
 
                     // Title
@@ -100,8 +98,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                         letterSpacing: 2,
                       ),
                     ),
-
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     // Consent Box
                     Container(
@@ -109,22 +106,142 @@ class _ConsentScreenState extends State<ConsentScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          // Consent Text
+                          // Consent Title
                           const Text(
-                            'เนื้อหาข้อมูล\nการขอความ\nยินยอม',
+                            'ความยินยอมในการเก็บรวบรวม ใช้ และบันทึกข้อมูลการสนทนา',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                               height: 1.4,
                             ),
                           ),
+                          const SizedBox(height: 16),
 
-                          const SizedBox(height: 24),
+                          // Scrollable Consent Content
+                          Container(
+                            height: 280,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                            child: Scrollbar(
+                              thumbVisibility: true,
+                              thickness: 6,
+                              child: SingleChildScrollView(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'ข้าพเจ้ายินยอมให้ระบบแชทบอททำการเก็บรวบรวม ใช้ และบันทึกข้อมูลการสนทนาของข้าพเจ้า ซึ่งรวมถึงข้อความที่ใช้สนทนากับแชทบอท วันและเวลาที่ใช้งาน เพื่อวัตถุประสงค์ดังต่อไปนี้',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    const Text(
+                                      '1. เพื่อจัดเก็บประวัติการสนทนาและแสดงผลย้อนหลังแก่ผู้ใช้งาน\n2. เพื่อปรับปรุง พัฒนา และเพิ่มประสิทธิภาพการให้บริการของระบบแชทบอท',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    const Text(
+                                      'ระบบจะเก็บรวบรวมและใช้ข้อมูลดังกล่าวเฉพาะตามวัตถุประสงค์ที่ระบุไว้เท่านั้น และจะไม่เปิดเผยข้อมูลแก่บุคคลภายนอก เว้นแต่เป็นไปตามที่กฎหมายกำหนด',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      'ระยะเวลาการจัดเก็บข้อมูล',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'ระบบจะจัดเก็บข้อมูลการสนทนาของท่านตลอดระยะเวลาที่ท่านมีบัญชีผู้ใช้งานในระบบ หรือจนกว่าท่านจะใช้สิทธิ์ในการลบข้อมูลหรือยกเลิกบัญชีผู้ใช้งาน',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      'สิทธิในการจัดการข้อมูล',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'ข้าพเจ้าทราบและเข้าใจว่า',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      '• ข้าพเจ้าสามารถเลือก ลบประวัติการสนทนาเฉพาะบางรายการ ได้ด้วยตนเอง\n• หรือสามารถเลือก ลบบัญชีผู้ใช้งาน ซึ่งระบบจะดำเนินการลบข้อมูลการสนทนาและข้อมูลที่เกี่ยวข้องทั้งหมดออกจากระบบอย่างถาวร',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    const Text(
+                                      'โดยการลบบัญชีผู้ใช้งานถือเป็นการถอนความยินยอมในการเก็บรวบรวมและใช้ข้อมูลทั้งหมด',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      'กรณีไม่ให้ความยินยอม',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'หากข้าพเจ้าไม่ให้ความยินยอม ระบบจะไม่ทำการบันทึกประวัติการสนทนา และข้าพเจ้าสามารถเลือกใช้งานระบบในโหมด Guest ซึ่งจะไม่มีการจัดเก็บข้อมูลการสนทนาใด ๆ',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
 
                           // Radio Options
                           Row(
@@ -202,8 +319,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     // Buttons
                     Row(
@@ -233,7 +349,6 @@ class _ConsentScreenState extends State<ConsentScreen> {
                             ),
                           ),
                         ),
-
                         const SizedBox(width: 16),
 
                         // Agree Button

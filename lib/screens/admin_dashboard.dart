@@ -118,6 +118,80 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
+  // Clear All Data
+  Future<void> _clearAllData() async {
+    // Show confirmation dialog
+    final shouldClear = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF0a1e5e),
+        title: const Text(
+          'Clear All Data',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Are you sure you want to delete ALL knowledge base data? This action cannot be undone.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text(
+              'Delete All',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldClear != true) return;
+
+    try {
+      // Show loading
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Deleting all data...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
+      // Call Supabase Edge Function to delete all data
+      final response = await _supabaseService.client.functions.invoke(
+        'clear-troubleshooting-data',
+      );
+
+      if (response.status == 200) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('All data deleted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        throw Exception(response.data['error'] ?? 'Clear data failed');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
   // Logout
   Future<void> _logout() async {
     final shouldLogout = await showDialog<bool>(
@@ -222,6 +296,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                       // Upload File Card
                       _buildUploadCard(),
+                      const SizedBox(height: 16),
+
+                      // Clear Data Card
+                      _buildClearDataCard(),
                       const SizedBox(height: 16),
 
                       // API Usage Card
@@ -459,6 +537,58 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClearDataCard() {
+    return Card(
+      color: const Color(0xFF1e40af),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.delete_forever, color: Colors.red, size: 32),
+                const SizedBox(width: 12),
+                const Text(
+                  'Clear Data',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Delete all knowledge base data from database',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _clearAllData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text(
+                  'CLEAR ALL DATA',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],

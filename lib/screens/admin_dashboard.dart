@@ -192,6 +192,94 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
+  // Show File Format Guide
+  void _showFileFormatGuide() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: const Color(0xFF0a1e5e),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(32),
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'FILE FORMAT GUIDE',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1e3a8a),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'รองรับไฟล์ CSV และ Excel (.xlsx, .xls)\nโดยในแถวแรกต้องมีหัวข้อครบตามนี้',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          height: 1.6,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'ประเภทหลัก | ประเภท | อาการ | ข้อสังเกตุ | ตรวจสอบเบื้องต้น | สาเหตุที่อาจเป็นไปได้ | วิธีแก้ | ผู้แก้ปัญหาเบื้องต้น',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          height: 1.8,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: 120,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1e3a8a),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'CLOSE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // Logout
   Future<void> _logout() async {
     final shouldLogout = await showDialog<bool>(
@@ -311,6 +399,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showFileFormatGuide,
+        backgroundColor: const Color(0xFF1e3a8a),
+        child: const Icon(Icons.help_outline, color: Colors.white, size: 28),
       ),
     );
   }

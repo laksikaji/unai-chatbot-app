@@ -1264,15 +1264,17 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                                 ElevatedButton(
                                   onPressed: () async {
+                                    final scaffoldMessenger =
+                                        ScaffoldMessenger.of(this.context);
+                                    final navigator = Navigator.of(context);
                                     try {
                                       await _supabaseService.deleteChatSession(
                                         chatId,
                                       );
                                       await _loadChatsFromDatabase();
-                                      Navigator.pop(context);
-                                      ScaffoldMessenger.of(
-                                        this.context,
-                                      ).showSnackBar(
+                                      if (!mounted) return;
+                                      navigator.pop();
+                                      scaffoldMessenger.showSnackBar(
                                         SnackBar(
                                           content: Text(
                                             'Deleted $chatTitle successfully',
@@ -1280,10 +1282,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                         ),
                                       );
                                     } catch (e) {
-                                      Navigator.pop(context);
-                                      ScaffoldMessenger.of(
-                                        this.context,
-                                      ).showSnackBar(
+                                      if (!mounted) return;
+                                      navigator.pop();
+                                      scaffoldMessenger.showSnackBar(
                                         SnackBar(
                                           content: Text(
                                             'Failed to delete chat: $e',
@@ -1330,14 +1331,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
                         final chatId = chat['id'];
 
+                        final scaffoldMessenger = ScaffoldMessenger.of(
+                          this.context,
+                        );
+                        final navigator = Navigator.of(context);
                         try {
                           await _supabaseService.updateChatSession(
                             chatId,
                             chatNameController.text,
                           );
                           await _loadChatsFromDatabase();
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(this.context).showSnackBar(
+                          if (!mounted) return;
+                          navigator.pop();
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(
                               content: Text(
                                 'Renamed to "${chatNameController.text}" successfully',
@@ -1345,8 +1351,9 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           );
                         } catch (e) {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(this.context).showSnackBar(
+                          if (!mounted) return;
+                          navigator.pop();
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(
                               content: Text('Failed to rename chat: $e'),
                             ),
@@ -1415,7 +1422,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     color: const Color(0xFF1e40af),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),
@@ -1559,6 +1566,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     await _loadChatMessages(
                                       filteredChats[index]['id'],
                                     );
+                                    if (!mounted) return;
                                     ScaffoldMessenger.of(
                                       this.context,
                                     ).showSnackBar(

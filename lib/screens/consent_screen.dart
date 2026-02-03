@@ -258,15 +258,35 @@ class _ConsentScreenState extends State<ConsentScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Radio<String>(
-                                        value: 'agree',
-                                        groupValue: _selectedConsent,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedConsent = value;
-                                          });
-                                        },
-                                        activeColor: const Color(0xFF1e40af),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: _selectedConsent == 'agree'
+                                                ? const Color(0xFF1e40af)
+                                                : Colors.grey,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(3),
+                                          child: _selectedConsent == 'agree'
+                                              ? Container(
+                                                  width: 12,
+                                                  height: 12,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Color(
+                                                          0xFF1e40af,
+                                                        ),
+                                                      ),
+                                                )
+                                              : const SizedBox(
+                                                  width: 12,
+                                                  height: 12,
+                                                ),
+                                        ),
                                       ),
                                       const Text(
                                         'ยินยอม',
@@ -292,15 +312,36 @@ class _ConsentScreenState extends State<ConsentScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Radio<String>(
-                                        value: 'disagree',
-                                        groupValue: _selectedConsent,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedConsent = value;
-                                          });
-                                        },
-                                        activeColor: const Color(0xFF1e40af),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color:
+                                                _selectedConsent == 'disagree'
+                                                ? const Color(0xFF1e40af)
+                                                : Colors.grey,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(3),
+                                          child: _selectedConsent == 'disagree'
+                                              ? Container(
+                                                  width: 12,
+                                                  height: 12,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Color(
+                                                          0xFF1e40af,
+                                                        ),
+                                                      ),
+                                                )
+                                              : const SizedBox(
+                                                  width: 12,
+                                                  height: 12,
+                                                ),
+                                        ),
                                       ),
                                       const Text(
                                         'ไม่ยินยอม',

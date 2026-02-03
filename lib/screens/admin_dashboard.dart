@@ -402,7 +402,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showFileFormatGuide,
-        backgroundColor: const Color(0xFF1e3a8a),
+        backgroundColor: const Color(0xFF2563eb),
         child: const Icon(Icons.help_outline, color: Colors.white, size: 28),
       ),
     );

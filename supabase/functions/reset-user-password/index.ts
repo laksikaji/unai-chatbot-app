@@ -15,7 +15,7 @@ serve(async (req) => {
     try {
         const { email, newPassword } = await req.json()
 
-        console.log('📧 Received password reset request for:', email)
+        console.log('Received password reset request for:', email)
 
         if (!email || !newPassword) {
             return new Response(
@@ -40,13 +40,13 @@ serve(async (req) => {
             }
         })
 
-        console.log('🔍 Looking up user...')
+        console.log('Looking up user...')
 
         // ค้นหา user จาก email
         const { data: userData, error: userError } = await supabase.auth.admin.listUsers()
 
         if (userError) {
-            console.error('❌ Error listing users:', userError)
+            console.error('Error listing users:', userError)
             return new Response(
                 JSON.stringify({ error: 'Failed to find user' }),
                 { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -56,14 +56,14 @@ serve(async (req) => {
         const user = userData?.users.find(u => u.email === email)
 
         if (!user) {
-            console.log('❌ User not found:', email)
+            console.log('User not found:', email)
             return new Response(
                 JSON.stringify({ error: 'User not found' }),
                 { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             )
         }
 
-        console.log('✅ User found, updating password...')
+        console.log('User found, updating password...')
 
         // อัพเดทรหัสผ่าน
         const { error: updateError } = await supabase.auth.admin.updateUserById(
@@ -72,14 +72,14 @@ serve(async (req) => {
         )
 
         if (updateError) {
-            console.error('❌ Error updating password:', updateError)
+            console.error('Error updating password:', updateError)
             return new Response(
                 JSON.stringify({ error: updateError.message }),
                 { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             )
         }
 
-        console.log('✅ Password updated successfully')
+        console.log('Password updated successfully')
 
         return new Response(
             JSON.stringify({ success: true, message: 'Password updated successfully' }),
@@ -87,7 +87,7 @@ serve(async (req) => {
         )
 
     } catch (error) {
-        console.error('❌ Error:', error)
+        console.error('Error:', error)
         return new Response(
             JSON.stringify({ error: error.message }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

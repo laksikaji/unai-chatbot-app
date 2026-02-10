@@ -16,7 +16,7 @@ serve(async (req) => {
   try {
     const { email } = await req.json()
 
-    console.log('📧 Received request for email:', email)
+    console.log('Received request for email:', email)
 
     if (!email) {
       return new Response(
@@ -29,12 +29,12 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    console.log('🔍 Checking if user exists...')
+    console.log('Checking if user exists...')
 
     const { data: userData, error: userError } = await supabase.auth.admin.listUsers()
 
     if (userError) {
-      console.error('❌ Error listing users:', userError)
+      console.error('Error listing users:', userError)
       return new Response(
         JSON.stringify({ error: 'Failed to check user' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -44,14 +44,14 @@ serve(async (req) => {
     const userExists = userData?.users.some(u => u.email === email)
 
     if (!userExists) {
-      console.log('❌ User not found:', email)
+      console.log('User not found:', email)
       return new Response(
         JSON.stringify({ error: 'Email not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('✅ User exists, generating OTP...')
+    console.log('User exists, generating OTP...')
 
     // ลบ OTP เก่าของ email นี้ทิ้งเลย
     const { error: deleteError } = await supabase
@@ -60,14 +60,14 @@ serve(async (req) => {
       .eq('email', email)
 
     if (deleteError) {
-      console.error('⚠️ Error deleting old OTPs:', deleteError)
+      console.error('Error deleting old OTPs:', deleteError)
     } else {
-      console.log('✅ Deleted old OTPs')
+      console.log('Deleted old OTPs')
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
-    console.log('🔢 OTP generated:', otp)
+    console.log('OTP generated:', otp)
 
     // บันทึก OTP ลงฐานข้อมูล
     const { data: insertData, error: insertError } = await supabase
@@ -79,14 +79,14 @@ serve(async (req) => {
       .select()
 
     if (insertError) {
-      console.error('❌ Insert error:', insertError)
+      console.error('Insert error:', insertError)
       return new Response(
         JSON.stringify({ error: 'Failed to create OTP', details: insertError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('✅ OTP saved to database:', insertData)
+    console.log('OTP saved to database:', insertData)
 
     // ส่งอีเมลผ่าน Gmail SMTP
     const GMAIL_USER = Deno.env.get('GMAIL_USER')
@@ -94,14 +94,14 @@ serve(async (req) => {
     const GMAIL_FROM_NAME = Deno.env.get('GMAIL_FROM_NAME') || 'UNAI Chatbot'
 
     if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
-      console.error('❌ Gmail credentials not found')
+      console.error('Gmail credentials not found')
       return new Response(
         JSON.stringify({ error: 'Email service not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('📨 Sending email via Gmail SMTP...')
+    console.log('Sending email via Gmail SMTP...')
 
     const client = new SMTPClient({
       connection: {
@@ -180,7 +180,7 @@ serve(async (req) => {
 
     await client.close()
 
-    console.log('✅ Email sent successfully via Gmail')
+    console.log('Email sent successfully via Gmail')
 
     return new Response(
       JSON.stringify({ success: true, message: 'OTP sent successfully' }),
@@ -188,7 +188,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('❌ Error:', error)
+    console.error('Error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

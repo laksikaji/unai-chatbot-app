@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';
 import 'supabase_service.dart';
 import 'home_screen.dart';
 import 'chat_screen.dart';
@@ -123,33 +125,38 @@ class _AdminDashboardState extends State<AdminDashboard> {
     // Show confirmation dialog
     final shouldClear = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF0a1e5e),
-        title: const Text(
-          'Clear All Data',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: const Text(
-          'Are you sure you want to delete ALL knowledge base data? This action cannot be undone.',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white70),
+      builder: (context) => Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          final colors = themeProvider.colors;
+          return AlertDialog(
+            backgroundColor: colors.dialogBackground,
+            title: Text(
+              'Clear All Data',
+              style: TextStyle(color: colors.textPrimary),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text(
-              'Delete All',
-              style: TextStyle(color: Colors.white),
+            content: Text(
+              'Are you sure you want to delete ALL knowledge base data? This action cannot be undone.',
+              style: TextStyle(color: colors.textSecondary),
             ),
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: colors.textSecondary),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text(
+                  'Delete All',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
 
@@ -197,84 +204,89 @@ class _AdminDashboardState extends State<AdminDashboard> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: const Color(0xFF0a1e5e),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            constraints: const BoxConstraints(maxWidth: 500),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'FILE FORMAT GUIDE',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1e3a8a),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'รองรับไฟล์ CSV และ Excel (.xlsx, .xls)\nโดยในแถวแรกต้องมีหัวข้อครบตามนี้',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          height: 1.6,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'ประเภทหลัก | ประเภท | อาการ | ข้อสังเกตุ | ตรวจสอบเบื้องต้น | สาเหตุที่อาจเป็นไปได้ | วิธีแก้ | ผู้แก้ปัญหาเบื้องต้น',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          height: 1.8,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: 120,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1e3a8a),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'CLOSE',
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return Dialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'FILE FORMAT GUIDE',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.0,
+                        color: colors.textPrimary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 24),
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: colors.inputField,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'รองรับไฟล์ CSV และ Excel (.xlsx, .xls)\nโดยในแถวแรกต้องมีหัวข้อครบตามนี้',
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontSize: 15,
+                              height: 1.6,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'ประเภทหลัก | ประเภท | อาการ | ข้อสังเกตุ | ตรวจสอบเบื้องต้น | สาเหตุที่อาจเป็นไปได้ | วิธีแก้ | ผู้แก้ปัญหาเบื้องต้น',
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontSize: 14,
+                              height: 1.8,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: 120,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.buttonSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'CLOSE',
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -284,27 +296,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Future<void> _logout() async {
     final shouldLogout = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF0a1e5e),
-        title: const Text('Logout', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          'Do you want to log out?',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white70),
+      builder: (context) => Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          final colors = themeProvider.colors;
+          return AlertDialog(
+            backgroundColor: colors.dialogBackground,
+            title: Text('Logout', style: TextStyle(color: colors.textPrimary)),
+            content: Text(
+              'Do you want to log out?',
+              style: TextStyle(color: colors.textSecondary),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Logout', style: TextStyle(color: Colors.white)),
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: colors.textSecondary),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
 
@@ -322,191 +342,97 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        toolbarHeight: 80,
-        backgroundColor: const Color(0xFF1e3a8a),
-        title: Row(
-          children: [
-            Image.asset('assets/images/unai_logo.png', height: 50),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final colors = themeProvider.colors;
+        return Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(color: colors.textPrimary),
+            toolbarHeight: 80,
+            backgroundColor: colors.appBar,
+            title: Row(
               children: [
-                Text(
-                  'UNAi Chatbot',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  'Admin Dashboard',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                Image.asset('assets/images/unai_logo.png', height: 50),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'UNAi Chatbot',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      'Admin Dashboard',
+                      style: TextStyle(
+                        color: colors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: _showSettingsDialog,
+            actions: [
+              IconButton(
+                icon: Icon(Icons.settings, color: colors.textPrimary),
+                onPressed: _showSettingsDialog,
+              ),
+              const SizedBox(width: 8),
+            ],
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0a1e5e), Color(0xFF1a3a8a)],
-          ),
-        ),
-        child: Scrollbar(
-          thumbVisibility: true,
-          thickness: 8,
-          radius: const Radius.circular(4),
-          child: SingleChildScrollView(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      // Sync Google Sheets Card
-                      _buildSyncCard(),
-                      const SizedBox(height: 16),
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [colors.backgroundStart, colors.backgroundEnd],
+              ),
+            ),
+            child: Scrollbar(
+              thumbVisibility: true,
+              thickness: 8,
+              radius: const Radius.circular(4),
+              child: SingleChildScrollView(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        children: [
+                          // Sync Google Sheets Card
+                          _buildSyncCard(colors),
+                          const SizedBox(height: 16),
 
-                      // Upload File Card
-                      _buildUploadCard(),
-                      const SizedBox(height: 16),
+                          // Upload File Card
+                          _buildUploadCard(colors),
+                          const SizedBox(height: 16),
 
-                      // Clear Data Card
-                      _buildClearDataCard(),
-                      const SizedBox(height: 16),
+                          // Clear Data Card
+                          _buildClearDataCard(colors),
+                          const SizedBox(height: 16),
 
-                      // API Usage Card
-                      _buildApiUsageCard(),
-                    ],
+                          // API Usage Card
+                          _buildApiUsageCard(colors),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showFileFormatGuide,
-        backgroundColor: const Color(0xFF2563eb),
-        child: const Icon(Icons.help_outline, color: Colors.white, size: 28),
-      ),
-    );
-  }
-
-  void _showSettingsDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: const Color(0xFF0a1e5e),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'SETTING',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Chat Page Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ChatScreen(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563eb),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'CHAT PAGE',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Logout Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _logout();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'LOGOUT',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Cancel Button
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    'CANCEL',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
+          floatingActionButton: FloatingActionButton(
+            onPressed: _showFileFormatGuide,
+            backgroundColor: colors.buttonSecondary,
+            child: Icon(
+              Icons.help_outline,
+              color: colors.textPrimary,
+              size: 28,
             ),
           ),
         );
@@ -514,9 +440,305 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildSyncCard() {
+  void _showSettingsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return Dialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'SETTING',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Chat Page Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ChatScreen(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.buttonSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'CHAT PAGE',
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Theme Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showThemeDialog();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.buttonSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'THEME',
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Logout Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _logout();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'LOGOUT',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Cancel Button
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        'CANCEL',
+                        style: TextStyle(
+                          color: colors.textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showThemeDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return Dialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'SELECT THEME',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Light Theme Option
+                    _buildThemeOption(
+                      context,
+                      themeProvider,
+                      AppTheme.light,
+                      'LIGHT THEME',
+                      'สีขาว - ธีมสว่าง',
+                      colors,
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Blue Theme Option
+                    _buildThemeOption(
+                      context,
+                      themeProvider,
+                      AppTheme.blue,
+                      'BLUE THEME',
+                      'สีน้ำเงิน - ธีมฟ้า',
+                      colors,
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Dark Theme Option
+                    _buildThemeOption(
+                      context,
+                      themeProvider,
+                      AppTheme.dark,
+                      'DARK THEME',
+                      'สีดำ - ธีมมืด',
+                      colors,
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Close Button
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.buttonPrimary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'CLOSE',
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context,
+    ThemeProvider themeProvider,
+    AppTheme theme,
+    String title,
+    String subtitle,
+    ThemeColors colors,
+  ) {
+    final isSelected = themeProvider.currentTheme == theme;
+    return InkWell(
+      onTap: () {
+        themeProvider.setTheme(theme);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? colors.buttonPrimary.withValues(alpha: 0.2)
+              : colors.buttonSecondary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? colors.buttonPrimary : colors.divider,
+            width: 2,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: isSelected ? colors.buttonPrimary : colors.textSecondary,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: colors.textPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(color: colors.textSecondary, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSyncCard(ThemeColors colors) {
     return Card(
-      color: const Color(0xFF1e40af),
+      color: colors.inputField,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -524,12 +746,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             Row(
               children: [
-                const Icon(Icons.sync, color: Colors.white, size: 32),
+                Icon(Icons.sync, color: colors.textPrimary, size: 32),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   'Sync Google Sheets',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -541,7 +763,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               _lastSyncData != null
                   ? 'Last sync: ${_lastSyncData!['records']} records'
                   : 'Not synced yet',
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
+              style: TextStyle(color: colors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -549,22 +771,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
               child: ElevatedButton(
                 onPressed: _isSyncing ? null : _syncGoogleSheets,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563eb),
+                  backgroundColor: colors.buttonSecondary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: _isSyncing
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                          color: Colors.white,
+                          color: colors.textPrimary,
                           strokeWidth: 2,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'SYNC NOW',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: colors.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -577,9 +799,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildUploadCard() {
+  Widget _buildUploadCard(ThemeColors colors) {
     return Card(
-      color: const Color(0xFF1e40af),
+      color: colors.inputField,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -587,12 +809,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             Row(
               children: [
-                const Icon(Icons.upload_file, color: Colors.white, size: 32),
+                Icon(Icons.upload_file, color: colors.textPrimary, size: 32),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   'Upload File',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -600,9 +822,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ],
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Upload CSV or Excel file directly (instant update)',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+              style: TextStyle(color: colors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -610,22 +832,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
               child: ElevatedButton(
                 onPressed: _isUploading ? null : _uploadFile,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2563eb),
+                  backgroundColor: colors.buttonSecondary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: _isUploading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                          color: Colors.white,
+                          color: colors.textPrimary,
                           strokeWidth: 2,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'UPLOAD FILE',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: colors.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -638,9 +860,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildClearDataCard() {
+  Widget _buildClearDataCard(ThemeColors colors) {
     return Card(
-      color: const Color(0xFF1e40af),
+      color: colors.inputField,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -650,10 +872,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
               children: [
                 const Icon(Icons.delete_forever, color: Colors.red, size: 32),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   'Clear Data',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -661,9 +883,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ],
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Delete all knowledge base data from database',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+              style: TextStyle(color: colors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -690,9 +912,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildApiUsageCard() {
+  Widget _buildApiUsageCard(ThemeColors colors) {
     return Card(
-      color: const Color(0xFF1e40af),
+      color: colors.inputField,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -700,12 +922,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             Row(
               children: [
-                const Icon(Icons.analytics, color: Colors.white, size: 32),
+                Icon(Icons.analytics, color: colors.textPrimary, size: 32),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   'API Usage',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -721,8 +943,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   .limit(50), // Fetch enough logs to cover all keys
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                  return Center(
+                    child: CircularProgressIndicator(color: colors.textPrimary),
                   );
                 }
 
@@ -766,8 +988,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             children: [
                               Text(
                                 'Key #$keyIndex',
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: colors.textPrimary,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -777,7 +999,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     ? '$requestsRemaining / $requestsLimit'
                                     : 'No Data',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.9),
+                                  color: colors.textPrimary.withValues(
+                                    alpha: 0.9,
+                                  ),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -787,7 +1011,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           const SizedBox(height: 8),
                           LinearProgressIndicator(
                             value: percentage,
-                            backgroundColor: Colors.white12,
+                            backgroundColor: colors.divider.withValues(
+                              alpha: 0.2,
+                            ),
                             color: data != null ? progressColor : Colors.grey,
                             minHeight: 8,
                             borderRadius: BorderRadius.circular(4),
@@ -802,8 +1028,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                   Text(
                                     'Resets: ${data['reset_time'] ?? '-'}',
                                     style: TextStyle(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.6,
+                                      color: colors.textSecondary.withValues(
+                                        alpha: 0.8,
                                       ),
                                       fontSize: 12,
                                     ),

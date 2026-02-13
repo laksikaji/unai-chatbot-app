@@ -17,6 +17,9 @@ dependencies:
   # Shared Preferences (สำหรับ Remember Me)
   shared_preferences: ^2.3.3
   
+  # Provider (สำหรับ Theme Management)
+  provider: ^6.1.1
+  
   # File Picker (สำหรับ Admin Upload)
   file_picker: ^8.1.4
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';
 import 'supabase_service.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
@@ -403,133 +405,166 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: const Color(0xFF0a1e5e),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'SETTING',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 32),
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return Dialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'SETTING',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
 
-                // Admin Dashboard Button (Only for Admin)
-                if (_isAdmin)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: SizedBox(
+                    // Admin Dashboard Button (Only for Admin)
+                    if (_isAdmin)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AdminDashboard(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colors.buttonSecondary,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'ADMIN DASHBOARD',
+                              style: TextStyle(
+                                color: colors.textPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    // Profile Button
+                    SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AdminDashboard(),
-                            ),
-                          );
+                          _showProfileDialog();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2563eb),
+                          backgroundColor: colors.buttonSecondary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          'ADMIN DASHBOARD',
+                        child: Text(
+                          'PROFILE',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: colors.textPrimary,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ),
-                  ),
 
-                // Profile Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showProfileDialog();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563eb),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 16),
+
+                    // Account Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showAccountDialog();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.buttonSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'ACCOUNT',
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                    child: const Text(
-                      'PROFILE',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+
+                    const SizedBox(height: 16),
+
+                    // Theme Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showThemeDialog();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.buttonSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'THEME',
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+
+                    const SizedBox(height: 24),
+
+                    // Cancel Button
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        'CANCEL',
+                        style: TextStyle(
+                          color: colors.textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-
-                const SizedBox(height: 16),
-
-                // Account Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showAccountDialog();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563eb),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'ACCOUNT',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Cancel Button
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    'CANCEL',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -547,248 +582,264 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Dialog(
-              backgroundColor: const Color(0xFF0a1e5e),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(32),
-                constraints: const BoxConstraints(maxWidth: 400),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'PROFILE',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Username Section
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1e3a8a),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'USERNAME',
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.6),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                isEditingUsername
-                                    ? TextField(
-                                        controller: usernameController,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        ),
-                                        decoration: const InputDecoration(
-                                          border: InputBorder.none,
-                                          isDense: true,
-                                          contentPadding: EdgeInsets.zero,
-                                        ),
-                                        autofocus: true,
-                                      )
-                                    : Text(
-                                        _username,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              isEditingUsername ? Icons.check : Icons.edit,
-                              color: Colors.white70,
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                if (isEditingUsername) {
-                                  this.setState(() {
-                                    _username = usernameController.text;
-                                  });
-                                }
-                                isEditingUsername = !isEditingUsername;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Email Section
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1e3a8a),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'EMAIL',
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.6),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _email,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(
-                            Icons.lock,
-                            color: Colors.white70,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return StatefulBuilder(
+              builder: (context, setState) {
+                return Dialog(
+                  backgroundColor: colors.dialogBackground,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(32),
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            _showSettingsDialog();
-                          },
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 32,
-                              vertical: 12,
-                            ),
-                          ),
-                          child: const Text(
-                            'CANCEL',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        Text(
+                          'PROFILE',
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final newUsername = usernameController.text.trim();
+                        const SizedBox(height: 32),
 
-                            if (newUsername.isEmpty) {
-                              ScaffoldMessenger.of(this.context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Username cannot be empty'),
-                                  backgroundColor: Colors.red,
+                        // Username Section
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.inputField,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'USERNAME',
+                                      style: TextStyle(
+                                        color: colors.textSecondary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    isEditingUsername
+                                        ? TextField(
+                                            controller: usernameController,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                            ),
+                                            decoration: const InputDecoration(
+                                              border: InputBorder.none,
+                                              isDense: true,
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                            autofocus: true,
+                                          )
+                                        : Text(
+                                            _username,
+                                            style: TextStyle(
+                                              color: colors.textPrimary,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                  ],
                                 ),
-                              );
-                              return;
-                            }
-
-                            // Show loading
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(this.context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Saving...'),
-                                duration: Duration(seconds: 1),
                               ),
-                            );
+                              IconButton(
+                                icon: Icon(
+                                  isEditingUsername ? Icons.check : Icons.edit,
+                                  color: colors.textSecondary,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    if (isEditingUsername) {
+                                      this.setState(() {
+                                        _username = usernameController.text;
+                                      });
+                                    }
+                                    isEditingUsername = !isEditingUsername;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
 
-                            try {
-                              // Save to Supabase
-                              await _supabaseService.updateUserProfile(
-                                username: newUsername,
-                              );
+                        const SizedBox(height: 16),
 
-                              // Update local state
-                              this.setState(() {
-                                _username = newUsername;
-                              });
+                        // Email Section
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.inputField,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'EMAIL',
+                                      style: TextStyle(
+                                        color: colors.textSecondary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _email,
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.lock,
+                                color: colors.textSecondary,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
 
-                              if (mounted) {
+                        const SizedBox(height: 32),
+
+                        // Buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                _showSettingsDialog();
+                              },
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 12,
+                                ),
+                              ),
+                              child: Text(
+                                'CANCEL',
+                                style: TextStyle(
+                                  color: colors.textSecondary,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                final newUsername = usernameController.text
+                                    .trim();
+
+                                if (newUsername.isEmpty) {
+                                  ScaffoldMessenger.of(
+                                    this.context,
+                                  ).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Username cannot be empty'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                // Show loading
+                                Navigator.pop(context);
                                 ScaffoldMessenger.of(this.context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Profile saved successfully'),
-                                    backgroundColor: Colors.green,
+                                    content: Text('Saving...'),
+                                    duration: Duration(seconds: 1),
                                   ),
                                 );
-                              }
-                            } catch (e) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(this.context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Failed to save profile: $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563eb),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 32,
-                              vertical: 12,
+
+                                try {
+                                  // Save to Supabase
+                                  await _supabaseService.updateUserProfile(
+                                    username: newUsername,
+                                  );
+
+                                  // Update local state
+                                  this.setState(() {
+                                    _username = newUsername;
+                                  });
+
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(
+                                      this.context,
+                                    ).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Profile saved successfully',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(
+                                      this.context,
+                                    ).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Failed to save profile: $e',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colors.buttonPrimary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                'SAVE',
+                                style: TextStyle(
+                                  color: colors.textPrimary,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            'SAVE',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             );
           },
         );
@@ -803,209 +854,222 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: const Color(0xFF0a1e5e),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'ACCOUNT',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 32),
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return Dialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'ACCOUNT',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
 
-                // Logout Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      Navigator.pop(context);
+                    // Logout Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
 
-                      final shouldLogout = await showDialog<bool>(
-                        context: this.context,
-                        builder: (context) => Dialog(
-                          backgroundColor: const Color(0xFF0a1e5e),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(32),
-                            constraints: const BoxConstraints(maxWidth: 400),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  'LOGOUT',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
+                          final shouldLogout = await showDialog<bool>(
+                            context: this.context,
+                            builder: (context) => Consumer<ThemeProvider>(
+                              builder: (context, themeProvider, child) {
+                                final colors = themeProvider.colors;
+                                return Dialog(
+                                  backgroundColor: colors.dialogBackground,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
-                                ),
-                                const SizedBox(height: 24),
-                                const Text(
-                                  'Do you want to log out?',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    height: 1.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 32),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, false),
-                                      style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 32,
-                                          vertical: 12,
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'CANCEL',
-                                        style: TextStyle(
-                                          color: Colors.white70,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(32),
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 400,
                                     ),
-                                    ElevatedButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 32,
-                                          vertical: 12,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'LOGOUT',
+                                          style: TextStyle(
+                                            color: colors.textPrimary,
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
-                                      ),
-                                      child: const Text(
-                                        'LOGOUT',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
+                                        const SizedBox(height: 24),
+                                        Text(
+                                          'Do you want to log out?',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: colors.textPrimary,
+                                            fontSize: 16,
+                                            height: 1.5,
+                                          ),
                                         ),
-                                      ),
+                                        const SizedBox(height: 32),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, false),
+                                              style: TextButton.styleFrom(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 32,
+                                                      vertical: 12,
+                                                    ),
+                                              ),
+                                              child: Text(
+                                                'CANCEL',
+                                                style: TextStyle(
+                                                  color: colors.textSecondary,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, true),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.red,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 32,
+                                                      vertical: 12,
+                                                    ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                              child: const Text(
+                                                'LOGOUT',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                );
+                              },
                             ),
+                          );
+
+                          if (shouldLogout == true && mounted) {
+                            try {
+                              await SupabaseService().signOut();
+                              if (!mounted) return;
+                              Navigator.pushAndRemoveUntil(
+                                this.context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(this.context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to logout: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                      );
+                        child: const Text(
+                          'LOGOUT',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
 
-                      if (shouldLogout == true && mounted) {
-                        try {
-                          await SupabaseService().signOut();
-                          if (!mounted) return;
-                          Navigator.pushAndRemoveUntil(
-                            this.context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginScreen(),
-                            ),
-                            (route) => false,
-                          );
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(this.context).showSnackBar(
-                              SnackBar(
-                                content: Text('Failed to logout: $e'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 16),
+
+                    // Delete Account Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showDeleteAccountConfirmation();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.buttonPrimary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'DELETE ACCOUNT',
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                    child: const Text(
-                      'LOGOUT',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+
+                    const SizedBox(height: 24),
+
+                    // Cancel Button
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _showSettingsDialog();
+                      },
+                      child: Text(
+                        'CANCEL',
+                        style: TextStyle(
+                          color: colors.textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-
-                const SizedBox(height: 16),
-
-                // Delete Account Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showDeleteAccountConfirmation();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563eb),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'DELETE ACCOUNT',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Cancel Button
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _showSettingsDialog();
-                  },
-                  child: const Text(
-                    'CANCEL',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -1018,92 +1082,97 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: const Color(0xFF0a1e5e),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'DELETE ACCOUNT',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                const Text(
-                  'Deleting your account is permanent. You will have no way of recovering your account or conversation data.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    height: 1.5,
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return Dialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _showAccountDialog();
-                      },
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 12,
-                        ),
-                      ),
-                      child: const Text(
-                        'CANCEL',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    Text(
+                      'DELETE ACCOUNT',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        await _deleteUserAccount();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                    const SizedBox(height: 24),
+
+                    Text(
+                      'Deleting your account is permanent. You will have no way of recovering your account or conversation data.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 16,
+                        height: 1.5,
                       ),
-                      child: const Text(
-                        'DELETE',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _showAccountDialog();
+                          },
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 12,
+                            ),
+                          ),
+                          child: Text(
+                            'CANCEL',
+                            style: TextStyle(
+                              color: colors.textSecondary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await _deleteUserAccount();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            'DELETE',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -1151,6 +1220,166 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       }
     }
+  }
+
+  /// =========================================
+  /// THEME DIALOG
+  /// =========================================
+  void _showThemeDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return Dialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'SELECT THEME',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Light Theme Option
+                    _buildThemeOption(
+                      context,
+                      themeProvider,
+                      AppTheme.light,
+                      'LIGHT THEME',
+                      'สีขาว - ธีมสว่าง',
+                      colors,
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Blue Theme Option
+                    _buildThemeOption(
+                      context,
+                      themeProvider,
+                      AppTheme.blue,
+                      'BLUE THEME',
+                      'สีน้ำเงิน - ธีมฟ้า',
+                      colors,
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Dark Theme Option
+                    _buildThemeOption(
+                      context,
+                      themeProvider,
+                      AppTheme.dark,
+                      'DARK THEME',
+                      'สีดำ - ธีมมืด',
+                      colors,
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Close Button
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.buttonPrimary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'CLOSE',
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context,
+    ThemeProvider themeProvider,
+    AppTheme theme,
+    String title,
+    String subtitle,
+    ThemeColors colors,
+  ) {
+    final isSelected = themeProvider.currentTheme == theme;
+    return InkWell(
+      onTap: () {
+        themeProvider.setTheme(theme);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? colors.buttonPrimary.withValues(alpha: 0.2)
+              : colors.buttonSecondary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? colors.buttonPrimary : colors.divider,
+            width: 2,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: isSelected ? colors.buttonPrimary : colors.textSecondary,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: colors.textPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(color: colors.textSecondary, fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// =========================================
@@ -1396,68 +1625,79 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: const Color(0xFF0a1e5e),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            constraints: const BoxConstraints(maxWidth: 600, maxHeight: 450),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'GUIDE QUESTIONS',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return Dialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                constraints: const BoxConstraints(
+                  maxWidth: 600,
+                  maxHeight: 450,
                 ),
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1e40af),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      width: 1,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'GUIDE QUESTIONS',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'การบอกข้อมูลที่ครบถ้วนจะทำให้บอทตอบคำถามได้ดีขึ้น โดยระบุอุปกรณ์ ระบบที่ใช้และอาการที่เกิดและลักษณะไฟ LED\n\nเช่น ใช้ TAG ระบบ บลูทูธ โดยมีอาการคือ ไม่พบ TAG หน้า UI เพียงตัวเดียวและ TAG ไม่มีไฟกระพริบ',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      height: 1.8,
+                    const SizedBox(height: 24),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: colors.inputField,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: colors.divider.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        'การบอกข้อมูลที่ครบถ้วนจะทำให้บอทตอบคำถามได้ดีขึ้น โดยระบุอุปกรณ์ ระบบที่ใช้และอาการที่เกิดและลักษณะไฟ LED\n\nเช่น ใช้ TAG ระบบ บลูทูธ โดยมีอาการคือ ไม่พบ TAG หน้า UI เพียงตัวเดียวและ TAG ไม่มีไฟกระพริบ',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontSize: 16,
+                          height: 1.8,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.buttonSecondary,
+                        foregroundColor: colors.textPrimary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'CLOSE',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563eb),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'CLOSE',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -1615,133 +1855,141 @@ class _ChatScreenState extends State<ChatScreen> {
   /// =========================================
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1e3a8a),
-        toolbarHeight: 80,
-        leading: _isGuestMode
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.pop(context),
-              )
-            : Builder(
-                builder: (context) => IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: () => Scaffold.of(context).openDrawer(),
-                ),
-              ),
-        title: Row(
-          children: [
-            Image.asset('assets/images/unai_logo.png', height: 50),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final colors = themeProvider.colors;
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: colors.appBar,
+            toolbarHeight: 80,
+            leading: _isGuestMode
+                ? IconButton(
+                    icon: Icon(Icons.arrow_back, color: colors.textPrimary),
+                    onPressed: () => Navigator.pop(context),
+                  )
+                : Builder(
+                    builder: (context) => IconButton(
+                      icon: Icon(Icons.menu, color: colors.textPrimary),
+                      onPressed: () => Scaffold.of(context).openDrawer(),
+                    ),
+                  ),
+            title: Row(
               children: [
-                Text(
-                  'UNAi Chatbot',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  'Online',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ],
-            ),
-          ],
-        ),
-        actions: _isGuestMode
-            ? [
-                // Login and Signup buttons for guests
-                TextButton(
-                  onPressed: _navigateToLoginWithGuestData,
-                  child: const Text(
-                    'LOGIN',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: _navigateToSignupWithGuestData,
-                  child: const Text(
-                    'SIGN UP',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ]
-            : [
-                IconButton(
-                  icon: const Icon(Icons.settings, color: Colors.white),
-                  onPressed: _showSettingsDialog,
-                ),
-              ],
-      ),
-
-      drawer: _isGuestMode ? null : _buildDrawer(),
-
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF0a1e5e), Color(0xFF1a3a8a)],
-              ),
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
-                child: Column(
+                Image.asset('assets/images/unai_logo.png', height: 50),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _isGuestMode
-                            ? _guestMessages.length
-                            : _messages.length,
-                        itemBuilder: (context, index) {
-                          final message = _isGuestMode
-                              ? _guestMessages[index]
-                              : _messages[index];
-                          return _buildMessageBubble(message);
-                        },
+                    Text(
+                      'UNAi Chatbot',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    _buildInputArea(),
+                    Text(
+                      'Online',
+                      style: TextStyle(
+                        color: colors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
-              ),
+              ],
             ),
+            actions: _isGuestMode
+                ? [
+                    // Login and Signup buttons for guests
+                    TextButton(
+                      onPressed: _navigateToLoginWithGuestData,
+                      child: Text(
+                        'LOGIN',
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _navigateToSignupWithGuestData,
+                      child: Text(
+                        'SIGN UP',
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ]
+                : [
+                    IconButton(
+                      icon: Icon(Icons.settings, color: colors.textPrimary),
+                      onPressed: _showSettingsDialog,
+                    ),
+                  ],
           ),
-          // Floating Help Button
-          Positioned(
-            right: 24,
-            bottom: 100,
-            child: FloatingActionButton(
-              onPressed: _showGuideQuestionsDialog,
-              backgroundColor: const Color(0xFF2563eb),
-              child: const Icon(
-                Icons.help_outline,
-                color: Colors.white,
-                size: 28,
+
+          drawer: _isGuestMode ? null : _buildDrawer(),
+
+          body: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [colors.backgroundStart, colors.backgroundEnd],
+                  ),
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _isGuestMode
+                                ? _guestMessages.length
+                                : _messages.length,
+                            itemBuilder: (context, index) {
+                              final message = _isGuestMode
+                                  ? _guestMessages[index]
+                                  : _messages[index];
+                              return _buildMessageBubble(message, colors);
+                            },
+                          ),
+                        ),
+                        _buildInputArea(colors),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
+              // Floating Help Button
+              Positioned(
+                right: 24,
+                bottom: 100,
+                child: FloatingActionButton(
+                  onPressed: _showGuideQuestionsDialog,
+                  backgroundColor: colors.buttonSecondary,
+                  child: Icon(
+                    Icons.help_outline,
+                    color: colors.textPrimary,
+                    size: 28,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -1749,234 +1997,251 @@ class _ChatScreenState extends State<ChatScreen> {
   /// DRAWER
   /// =========================================
   Widget _buildDrawer() {
-    return Drawer(
-      backgroundColor: const Color(0xFF0a1e5e),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF1a3a8a), Color(0xFF0a1e5e)],
-              ),
-            ),
-            child: Row(
-              children: [
-                Image.asset('assets/images/unai_logo.png', height: 40),
-                const SizedBox(width: 12),
-                const Text(
-                  'UNAi Chatbot',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final colors = themeProvider.colors;
+        return Drawer(
+          backgroundColor: colors.drawer,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 40,
+                  horizontal: 20,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [colors.appBar, colors.drawer],
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _buildDrawerButton(
-                  icon: Icons.add,
-                  label: 'NEW CHAT',
-                  onTap: () async {
-                    Navigator.pop(context);
-                    await _createNewChat();
-                  },
-                ),
-                const SizedBox(height: 12),
-
-                _buildDrawerButton(
-                  icon: Icons.search,
-                  label: 'SEARCH CHAT',
-                  onTap: () {
-                    Navigator.pop(context);
-                    _showSearchChatDialog();
-                  },
-                ),
-              ],
-            ),
-          ),
-
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'YOUR CHAT',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
+                child: Row(
+                  children: [
+                    Image.asset('assets/images/unai_logo.png', height: 40),
+                    const SizedBox(width: 12),
+                    Text(
+                      'UNAi Chatbot',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
 
-          Expanded(
-            child: _isLoadingChats
-                ? const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: _chatHistory.length,
-                    itemBuilder: (context, index) {
-                      return _buildChatHistoryItem(
-                        _chatHistory[index]['title'],
-                      );
-                    },
-                  ),
-          ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildDrawerButton(
+                      icon: Icons.add,
+                      label: 'NEW CHAT',
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _createNewChat();
+                      },
+                      colors: colors,
+                    ),
+                    const SizedBox(height: 12),
 
-          // Bottom options
-          Container(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                    _buildDrawerButton(
+                      icon: Icons.search,
+                      label: 'SEARCH CHAT',
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showSearchChatDialog();
+                      },
+                      colors: colors,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _buildDrawerButton(
-                    icon: Icons.settings,
-                    label: 'SETTING',
-                    onTap: () {
-                      Navigator.pop(context);
-                      _showSettingsDialog();
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _buildDrawerButton(
-                    icon: Icons.logout,
-                    label: 'LOGOUT',
-                    color: Colors.red,
-                    onTap: () async {
-                      Navigator.pop(context);
 
-                      final shouldLogout = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => Dialog(
-                          backgroundColor: const Color(0xFF0a1e5e),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(32),
-                            constraints: const BoxConstraints(maxWidth: 400),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  'LOGOUT',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'YOUR CHAT',
+                    style: TextStyle(
+                      color: colors.textSecondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ),
+
+              Expanded(
+                child: _isLoadingChats
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: colors.buttonPrimary,
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: _chatHistory.length,
+                        itemBuilder: (context, index) {
+                          return _buildChatHistoryItem(
+                            _chatHistory[index]['title'],
+                            colors,
+                          );
+                        },
+                      ),
+              ),
+
+              // Bottom options
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: colors.divider)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildDrawerButton(
+                        icon: Icons.settings,
+                        label: 'SETTING',
+                        onTap: () {
+                          Navigator.pop(context);
+                          _showSettingsDialog();
+                        },
+                        colors: colors,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildDrawerButton(
+                        icon: Icons.logout,
+                        label: 'LOGOUT',
+                        color: Colors.red,
+                        onTap: () async {
+                          Navigator.pop(context);
+
+                          final shouldLogout = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => Dialog(
+                              backgroundColor: colors.dialogBackground,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.all(32),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 400,
                                 ),
-                                const SizedBox(height: 24),
-                                const Text(
-                                  'Do you want to log out?',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    height: 1.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 32),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, false),
-                                      style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 32,
-                                          vertical: 12,
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'CANCEL',
-                                        style: TextStyle(
-                                          color: Colors.white70,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                    Text(
+                                      'LOGOUT',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
-                                    ElevatedButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 32,
-                                          vertical: 12,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      'Do you want to log out?',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontSize: 16,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 32),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, false),
+                                          style: TextButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 32,
+                                              vertical: 12,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'CANCEL',
+                                            style: TextStyle(
+                                              color: colors.textSecondary,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      child: const Text(
-                                        'LOGOUT',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
+                                        ElevatedButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 32,
+                                              vertical: 12,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'LOGOUT',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-
-                      if (shouldLogout == true && mounted) {
-                        try {
-                          await SupabaseService().signOut();
-                          if (!mounted) return;
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginScreen(),
-                            ),
-                            (route) => false,
-                          );
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Failed to logout: $e'),
-                                backgroundColor: Colors.red,
                               ),
-                            );
+                            ),
+                          );
+
+                          if (shouldLogout == true && mounted) {
+                            try {
+                              await SupabaseService().signOut();
+                              if (!mounted) return;
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to logout: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
                           }
-                        }
-                      }
-                    },
+                        },
+                        colors: colors,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -1984,6 +2249,7 @@ class _ChatScreenState extends State<ChatScreen> {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
+    required ThemeColors colors,
     Color? color,
   }) {
     return InkWell(
@@ -1992,17 +2258,17 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: color ?? const Color(0xFF1e40af),
+          color: color ?? colors.buttonSecondary,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.white, size: 20),
+            Icon(icon, color: colors.textPrimary, size: 20),
             const SizedBox(width: 12),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: colors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
@@ -2014,7 +2280,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildChatHistoryItem(String title) {
+  Widget _buildChatHistoryItem(String title, ThemeColors colors) {
     return InkWell(
       onTap: () async {
         Navigator.pop(context);
@@ -2031,25 +2297,29 @@ class _ChatScreenState extends State<ChatScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
+          color: colors.inputField,
           borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: colors.divider.withValues(alpha: 0.3),
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colors.textPrimary,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.more_vert,
-                color: Colors.white70,
+                color: colors.textSecondary,
                 size: 20,
               ),
               padding: EdgeInsets.zero,
@@ -2067,7 +2337,7 @@ class _ChatScreenState extends State<ChatScreen> {
   /// =========================================
   /// MESSAGE BUBBLE UI
   /// =========================================
-  Widget _buildMessageBubble(ChatMessage message) {
+  Widget _buildMessageBubble(ChatMessage message, ThemeColors colors) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -2075,11 +2345,11 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           CircleAvatar(
             backgroundColor: message.isUser
-                ? const Color(0xFF64748b)
+                ? colors.buttonSecondary
                 : Colors.white,
             radius: 24,
             child: message.isUser
-                ? const Icon(Icons.person, color: Colors.white, size: 26)
+                ? Icon(Icons.person, color: colors.textPrimary, size: 26)
                 : Image.asset(
                     'assets/images/unai_logo.png',
                     width: 32,
@@ -2091,15 +2361,17 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: BoxDecoration(
-                color: message.isUser
-                    ? const Color(0xFF2563eb)
-                    : const Color(0xFF1e40af),
+                color: message.isUser ? colors.userBubble : colors.botBubble,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 message.text,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: message.isUser
+                      ? Colors.white
+                      : (colors.botBubble.computeLuminance() > 0.5
+                            ? Colors.black87
+                            : Colors.white),
                   fontSize: 18,
                   height: 1.6,
                 ),
@@ -2114,11 +2386,11 @@ class _ChatScreenState extends State<ChatScreen> {
   /// =========================================
   /// INPUT AREA
   /// =========================================
-  Widget _buildInputArea() {
+  Widget _buildInputArea(ThemeColors colors) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1e3a8a),
+        color: colors.inputArea,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
@@ -2134,15 +2406,15 @@ class _ChatScreenState extends State<ChatScreen> {
               Expanded(
                 child: TextField(
                   controller: _messageController,
-                  style: const TextStyle(color: Colors.white, fontSize: 17),
+                  style: TextStyle(color: colors.textPrimary, fontSize: 17),
                   decoration: InputDecoration(
                     hintText: 'TYPE YOUR MESSAGE HERE...',
                     hintStyle: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: colors.textSecondary.withValues(alpha: 0.7),
                       fontSize: 17,
                     ),
                     filled: true,
-                    fillColor: const Color(0xFF0a1e5e),
+                    fillColor: colors.inputField,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(28),
                       borderSide: BorderSide.none,
@@ -2157,12 +2429,12 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               const SizedBox(width: 12),
               Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFF2563eb),
+                decoration: BoxDecoration(
+                  color: colors.buttonSecondary,
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.send, color: Colors.white),
+                  icon: Icon(Icons.send, color: colors.textPrimary),
                   onPressed: _sendMessage,
                 ),
               ),
@@ -2172,7 +2444,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Text(
             'UNAi Chatbot can make mistakes. Please verify important information.',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.4),
+              color: colors.textSecondary.withValues(alpha: 0.6),
               fontSize: 12,
             ),
             textAlign: TextAlign.center,

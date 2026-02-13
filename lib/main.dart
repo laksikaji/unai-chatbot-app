@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
+import 'theme_provider.dart';
 import 'screens/supabase_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/chat_screen.dart';
@@ -66,31 +68,34 @@ class _UNAIChatbotAppState extends State<UNAIChatbotApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: _navigatorKey,
-      title: 'UNAi Chatbot',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Inter',
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: MaterialApp(
+        navigatorKey: _navigatorKey,
+        title: 'UNAi Chatbot',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          fontFamily: 'Inter',
+          useMaterial3: true,
+        ),
+        home: SupabaseService().isLoggedIn
+            ? FutureBuilder<bool>(
+                future: SupabaseService().isAdmin(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  if (snapshot.hasData && snapshot.data == true) {
+                    return const AdminDashboard();
+                  }
+                  return const ChatScreen(isGuest: false);
+                },
+              )
+            : const HomeScreen(),
       ),
-      home: SupabaseService().isLoggedIn
-          ? FutureBuilder<bool>(
-              future: SupabaseService().isAdmin(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  );
-                }
-                if (snapshot.hasData && snapshot.data == true) {
-                  return const AdminDashboard();
-                }
-                return const ChatScreen(isGuest: false);
-              },
-            )
-          : const HomeScreen(),
     );
   }
 }

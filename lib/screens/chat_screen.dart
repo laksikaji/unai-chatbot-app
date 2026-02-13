@@ -2214,7 +2214,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               await SupabaseService().signOut();
                               if (!mounted) return;
                               Navigator.pushAndRemoveUntil(
-                                context,
+                                this.context,
                                 MaterialPageRoute(
                                   builder: (context) => const LoginScreen(),
                                 ),
@@ -2222,7 +2222,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               );
                             } catch (e) {
                               if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                ScaffoldMessenger.of(this.context).showSnackBar(
                                   SnackBar(
                                     content: Text('Failed to logout: $e'),
                                     backgroundColor: Colors.red,

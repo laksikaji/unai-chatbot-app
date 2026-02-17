@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // @ts-nocheck
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
@@ -46,12 +47,20 @@ class GeminiService {
 }
 // -------------------------------------------------------------
 
+=======
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+
+>>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+<<<<<<< HEAD
 serve(async (req: Request) => {
+=======
+serve(async (req) => {
+>>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders })
     }
@@ -59,6 +68,7 @@ serve(async (req: Request) => {
     try {
         console.log('Starting Google Sheets sync...')
 
+<<<<<<< HEAD
         // @ts-ignore
         const GOOGLE_SHEET_ID = Deno.env.get('GOOGLE_SHEET_ID')
         // @ts-ignore
@@ -80,6 +90,13 @@ serve(async (req: Request) => {
         const singleGeminiKey = Deno.env.get('GEMINI_API_KEY');
         if (singleGeminiKey && geminiKeys.length === 0) geminiKeys.push(singleGeminiKey);
 
+=======
+        const GOOGLE_SHEET_ID = Deno.env.get('GOOGLE_SHEET_ID')
+        const GOOGLE_API_KEY = Deno.env.get('GOOGLE_API_KEY')
+        const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
+        const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+>>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624
         if (!GOOGLE_SHEET_ID || !GOOGLE_API_KEY) {
             throw new Error('Missing Google Sheets credentials')
         }
@@ -109,6 +126,7 @@ serve(async (req: Request) => {
         const [headers, ...dataRows] = rows
 
         // แปลงเป็น JSON
+<<<<<<< HEAD
         const cleanText = (text: any) => {
             if (!text) return ''
             return String(text).replace(/\n/g, ' / ').replace(/\s+/g, ' ').trim()
@@ -117,6 +135,16 @@ serve(async (req: Request) => {
         let records = dataRows
             .filter((row: any[]) => row.length > 0 && row[0] && String(row[0]).trim())
             .map((row: any[]) => ({
+=======
+        const cleanText = (text) => {
+            if (!text) return ''
+            return text.replace(/\n/g, ' / ').replace(/\s+/g, ' ').trim()
+        }
+
+        const records = dataRows
+            .filter(row => row.length > 0 && row[0] && row[0].trim())
+            .map(row => ({
+>>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624
                 category: cleanText(row[0]),
                 subcategory: cleanText(row[1]),
                 symptom_description: cleanText(row[2]),
@@ -125,6 +153,7 @@ serve(async (req: Request) => {
                 possible_causes: cleanText(row[5]),
                 solution: cleanText(row[6]),
                 responsible_party: cleanText(row[7]),
+<<<<<<< HEAD
                 sheet_source: 'google_sheets',
                 search_keywords: [row[0], row[1], row[2], row[3], row[4]]
                     .filter(Boolean)
@@ -165,13 +194,29 @@ serve(async (req: Request) => {
 
         // Deleting old data & Insert new data...
         // (ส่วนที่เหลือเหมือนเดิม)
+=======
+                sheet_source: 'google_sheets',  // ✅ เปลี่ยนจาก 'troubleshooting_guide' เป็น 'google_sheets'
+                search_keywords: [row[0], row[1], row[2], row[3], row[4]]
+                    .filter(Boolean)
+                    .map(t => cleanText(t))
+                    .join(' ')
+            }))
+
+        console.log(`Processed ${records.length} records`)
+
+        // ✅ ลบเฉพาะข้อมูลจาก Google Sheets (ไม่ลบข้อมูลที่อัปโหลดจากไฟล์)
+>>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624
         console.log('Deleting old Google Sheets data...')
         const deleteResponse = await fetch(
             `${SUPABASE_URL}/rest/v1/troubleshooting_guide?sheet_source=eq.google_sheets`,
             {
                 method: 'DELETE',
                 headers: {
+<<<<<<< HEAD
                     'apikey': SUPABASE_SERVICE_KEY!,
+=======
+                    'apikey': SUPABASE_SERVICE_KEY,
+>>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624
                     'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
                     'Content-Type': 'application/json',
                     'Prefer': 'return=minimal'
@@ -179,6 +224,7 @@ serve(async (req: Request) => {
             }
         )
 
+<<<<<<< HEAD
         if (!deleteResponse.ok) console.warn('Delete warning:', await deleteResponse.text())
         else console.log('✓ Old Google Sheets data deleted')
 
@@ -189,12 +235,33 @@ serve(async (req: Request) => {
 
         for (let i = 0; i < records.length; i += batchSize) {
             const batch = records.slice(i, i + batchSize)
+=======
+        if (!deleteResponse.ok) {
+            console.warn('Delete warning:', await deleteResponse.text())
+        } else {
+            console.log('✓ Old Google Sheets data deleted')
+        }
+
+        console.log('Inserting new data...')
+
+        // Insert ข้อมูลใหม่ (ทีละ batch)
+        let insertedCount = 0
+        const batchSize = 100
+
+        for (let i = 0; i < records.length; i += batchSize) {
+            const batch = records.slice(i, i + batchSize)
+
+>>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624
             const insertResponse = await fetch(
                 `${SUPABASE_URL}/rest/v1/troubleshooting_guide`,
                 {
                     method: 'POST',
                     headers: {
+<<<<<<< HEAD
                         'apikey': SUPABASE_SERVICE_KEY!,
+=======
+                        'apikey': SUPABASE_SERVICE_KEY,
+>>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624
                         'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
                         'Content-Type': 'application/json',
                         'Prefer': 'return=representation'
@@ -204,12 +271,23 @@ serve(async (req: Request) => {
             )
 
             if (!insertResponse.ok) {
+<<<<<<< HEAD
                 console.error(`Batch ${i}-${i + batchSize} error:`, await insertResponse.text())
             } else {
                 const insertedData = await insertResponse.json()
                 insertedCount += insertedData.length
                 console.log(`Inserted batch ${i}-${i + batchSize}: ${insertedData.length} records`)
             }
+=======
+                const errorText = await insertResponse.text()
+                console.error(`Batch ${i}-${i + batchSize} error:`, errorText)
+                throw new Error(`Insert error: ${errorText}`)
+            }
+
+            const insertedData = await insertResponse.json()
+            insertedCount += insertedData.length
+            console.log(`Inserted batch ${i}-${i + batchSize}: ${insertedData.length} records`)
+>>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624
         }
 
         console.log(`✓ Sync complete! ${insertedCount} records from Google Sheets`)
@@ -217,6 +295,7 @@ serve(async (req: Request) => {
         return new Response(
             JSON.stringify({
                 success: true,
+<<<<<<< HEAD
                 message: `Synced ${insertedCount} records (Model: embedding-001)`,
                 records: insertedCount
             }),
@@ -231,3 +310,28 @@ serve(async (req: Request) => {
         )
     }
 })
+=======
+                message: `Synced ${insertedCount} records from Google Sheets (preserved uploaded files)`,
+                records: insertedCount
+            }),
+            {
+                status: 200,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            }
+        )
+
+    } catch (error) {
+        console.error('Error:', error)
+        return new Response(
+            JSON.stringify({
+                success: false,
+                error: error.message
+            }),
+            {
+                status: 500,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            }
+        )
+    }
+})
+>>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624

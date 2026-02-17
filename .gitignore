@@ -1,0 +1,34 @@
+﻿# Flutter
+build/
+*.apk
+*.aab
+*.ipa
+
+# Java/Oracle JDK
+lib/oracleJdk-25/
+**/oracleJdk-25/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Dependencies
+.dart_tool/
+.packages
+pubspec.lock
+
+lib/oracleJdk-25/
+*.apk
+build/
+
+# Environment Variables
+.env
+
+# Sensitive Config Files
+lib/config/supabase_config.dart

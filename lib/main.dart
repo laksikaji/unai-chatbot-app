@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'theme_provider.dart';
@@ -66,6 +67,39 @@ class _UNAIChatbotAppState extends State<UNAIChatbotApp> {
     });
   }
 
+  TextTheme _buildTextTheme(TextTheme base) {
+    // Start with Inter (English)
+    final interTheme = GoogleFonts.interTextTheme(base);
+    // Get Taviraj family for fallback
+    final thaiFontFamily = GoogleFonts.taviraj().fontFamily;
+
+    // Helper to add fallback
+    TextStyle? addFallback(TextStyle? style) {
+      if (style == null) return null;
+      return style.copyWith(
+        fontFamilyFallback: [if (thaiFontFamily != null) thaiFontFamily],
+      );
+    }
+
+    return interTheme.copyWith(
+      displayLarge: addFallback(interTheme.displayLarge),
+      displayMedium: addFallback(interTheme.displayMedium),
+      displaySmall: addFallback(interTheme.displaySmall),
+      headlineLarge: addFallback(interTheme.headlineLarge),
+      headlineMedium: addFallback(interTheme.headlineMedium),
+      headlineSmall: addFallback(interTheme.headlineSmall),
+      titleLarge: addFallback(interTheme.titleLarge),
+      titleMedium: addFallback(interTheme.titleMedium),
+      titleSmall: addFallback(interTheme.titleSmall),
+      bodyLarge: addFallback(interTheme.bodyLarge),
+      bodyMedium: addFallback(interTheme.bodyMedium),
+      bodySmall: addFallback(interTheme.bodySmall),
+      labelLarge: addFallback(interTheme.labelLarge),
+      labelMedium: addFallback(interTheme.labelMedium),
+      labelSmall: addFallback(interTheme.labelSmall),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -76,7 +110,9 @@ class _UNAIChatbotAppState extends State<UNAIChatbotApp> {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,
-          fontFamily: 'Inter',
+          textTheme: _buildTextTheme(
+            ThemeData(brightness: Brightness.light).textTheme,
+          ),
           useMaterial3: true,
         ),
         home: SupabaseService().isLoggedIn

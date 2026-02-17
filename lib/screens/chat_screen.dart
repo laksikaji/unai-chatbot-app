@@ -166,7 +166,8 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages.clear();
         _messages.add(
           ChatMessage(
-            text: 'สวัสดีครับ! ยินดีต้อนรับสู่ UNAi Chatbot',
+            text:
+                'สวัสดีครับ! ยินดีต้อนรับสู่ UNAi Chatbot บอกข้อมูลอย่างครบถ้วนเพื่อการตอบคำถามที่ไวขึ้น',
             isUser: false,
             timestamp: DateTime.now(),
           ),
@@ -420,7 +421,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'SETTING',
+                      'SETTINGS',
                       style: TextStyle(
                         color: colors.textPrimary,
                         fontSize: 24,
@@ -429,8 +430,94 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     const SizedBox(height: 32),
 
+                    // Profile Button
+                    if (!_isGuestMode)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _showProfileDialog();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.buttonSecondary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'PROFILE',
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    if (!_isGuestMode) const SizedBox(height: 16),
+
+                    // Account Button
+                    if (!_isGuestMode)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _showAccountDialog();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.buttonSecondary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'ACCOUNT',
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    if (!_isGuestMode) const SizedBox(height: 16),
+
+                    // Theme Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showThemeDialog();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.buttonSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'THEME',
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
                     // Admin Dashboard Button (Only for Admin)
-                    if (_isAdmin)
+                    if (_isAdmin && !_isGuestMode)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: SizedBox(
@@ -463,88 +550,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         ),
                       ),
-
-                    // Profile Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showProfileDialog();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.buttonSecondary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'PROFILE',
-                          style: TextStyle(
-                            color: colors.textPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Account Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showAccountDialog();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.buttonSecondary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'ACCOUNT',
-                          style: TextStyle(
-                            color: colors.textPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Theme Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _showThemeDialog();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.buttonSecondary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'THEME',
-                          style: TextStyle(
-                            color: colors.textPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
 
                     const SizedBox(height: 24),
 
@@ -636,8 +641,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                     isEditingUsername
                                         ? TextField(
                                             controller: usernameController,
-                                            style: const TextStyle(
-                                              color: Colors.white,
+                                            style: TextStyle(
+                                              color: colors.textPrimary,
                                               fontSize: 16,
                                             ),
                                             decoration: const InputDecoration(
@@ -1393,226 +1398,252 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: const Color(0xFF0a1e5e),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return Dialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'EDIT',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white70),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1e3a8a),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: chatNameController,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'EDIT',
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: colors.textSecondary),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
                       ),
-                      const Icon(Icons.edit, color: Colors.white70, size: 20),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        // หา chatId จาก chatTitle
-                        final chat = _chatHistory.firstWhere(
-                          (c) => c['title'] == chatTitle,
-                          orElse: () => {},
-                        );
-                        if (chat.isEmpty) return;
-
-                        final chatId = chat['id'];
-
-                        showDialog(
-                          context: this.context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              backgroundColor: const Color(0xFF0a1e5e),
-                              title: const Text(
-                                'Delete Chat?',
-                                style: TextStyle(color: Colors.white),
+                      decoration: BoxDecoration(
+                        color: colors.inputField,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: chatNameController,
+                              style: TextStyle(
+                                color: colors.textPrimary,
+                                fontSize: 16,
                               ),
-                              content: Text(
-                                'Do you want to delete "$chatTitle"?',
-                                style: const TextStyle(color: Colors.white70),
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
                               ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text(
-                                    'Cancel',
-                                    style: TextStyle(color: Colors.white70),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    final scaffoldMessenger =
-                                        ScaffoldMessenger.of(this.context);
-                                    final navigator = Navigator.of(context);
-                                    try {
-                                      await _supabaseService.deleteChatSession(
-                                        chatId,
-                                      );
-                                      await _loadChatsFromDatabase();
-                                      if (!mounted) return;
-                                      navigator.pop();
-                                      scaffoldMessenger.showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Deleted $chatTitle successfully',
+                            ),
+                          ),
+                          Icon(
+                            Icons.edit,
+                            color: colors.textSecondary,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            // หา chatId จาก chatTitle
+                            final chat = _chatHistory.firstWhere(
+                              (c) => c['title'] == chatTitle,
+                              orElse: () => {},
+                            );
+                            if (chat.isEmpty) return;
+
+                            final chatId = chat['id'];
+
+                            showDialog(
+                              context: this.context,
+                              builder: (BuildContext context) {
+                                return Consumer<ThemeProvider>(
+                                  builder: (context, themeProvider, child) {
+                                    final colors = themeProvider.colors;
+                                    return AlertDialog(
+                                      backgroundColor: colors.dialogBackground,
+                                      title: Text(
+                                        'Delete Chat?',
+                                        style: TextStyle(
+                                          color: colors.textPrimary,
+                                        ),
+                                      ),
+                                      content: Text(
+                                        'Do you want to delete "$chatTitle"?',
+                                        style: TextStyle(
+                                          color: colors.textSecondary,
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                              color: colors.textSecondary,
+                                            ),
                                           ),
                                         ),
-                                      );
-                                    } catch (e) {
-                                      if (!mounted) return;
-                                      navigator.pop();
-                                      scaffoldMessenger.showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Failed to delete chat: $e',
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            final scaffoldMessenger =
+                                                ScaffoldMessenger.of(
+                                                  this.context,
+                                                );
+                                            final navigator = Navigator.of(
+                                              context,
+                                            );
+                                            try {
+                                              await _supabaseService
+                                                  .deleteChatSession(chatId);
+                                              await _loadChatsFromDatabase();
+                                              if (!mounted) return;
+                                              navigator.pop();
+                                              scaffoldMessenger.showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    'Deleted $chatTitle successfully',
+                                                  ),
+                                                ),
+                                              );
+                                            } catch (e) {
+                                              if (!mounted) return;
+                                              navigator.pop();
+                                              scaffoldMessenger.showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    'Failed to delete chat: $e',
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                          ),
+                                          child: const Text(
+                                            'Delete',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
-                                      );
-                                    }
+                                      ],
+                                    );
                                   },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                  child: const Text(
-                                    'Delete',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ],
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                      icon: const Icon(Icons.delete, size: 20),
-                      label: const Text('DELETE'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        // หา chatId จาก chatTitle
-                        final chat = _chatHistory.firstWhere(
-                          (c) => c['title'] == chatTitle,
-                          orElse: () => {},
-                        );
-                        if (chat.isEmpty) return;
-
-                        final chatId = chat['id'];
-
-                        final scaffoldMessenger = ScaffoldMessenger.of(
-                          this.context,
-                        );
-                        final navigator = Navigator.of(context);
-                        try {
-                          await _supabaseService.updateChatSession(
-                            chatId,
-                            chatNameController.text,
-                          );
-                          await _loadChatsFromDatabase();
-                          if (!mounted) return;
-                          navigator.pop();
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Renamed to "${chatNameController.text}" successfully',
-                              ),
+                          icon: const Icon(Icons.delete, size: 20),
+                          label: const Text('DELETE'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
                             ),
-                          );
-                        } catch (e) {
-                          if (!mounted) return;
-                          navigator.pop();
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to rename chat: $e'),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2563eb),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 12,
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        ElevatedButton(
+                          onPressed: () async {
+                            // หา chatId จาก chatTitle
+                            final chat = _chatHistory.firstWhere(
+                              (c) => c['title'] == chatTitle,
+                              orElse: () => {},
+                            );
+                            if (chat.isEmpty) return;
+
+                            final chatId = chat['id'];
+
+                            final scaffoldMessenger = ScaffoldMessenger.of(
+                              this.context,
+                            );
+                            final navigator = Navigator.of(context);
+                            try {
+                              await _supabaseService.updateChatSession(
+                                chatId,
+                                chatNameController.text,
+                              );
+                              await _loadChatsFromDatabase();
+                              if (!mounted) return;
+                              navigator.pop();
+                              scaffoldMessenger.showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Renamed to "${chatNameController.text}" successfully',
+                                  ),
+                                ),
+                              );
+                            } catch (e) {
+                              if (!mounted) return;
+                              navigator.pop();
+                              scaffoldMessenger.showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to rename chat: $e'),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2563eb),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            'SAVE',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        'SAVE',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -1712,137 +1743,153 @@ class _ChatScreenState extends State<ChatScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            List<Map<String, dynamic>> filteredChats = _chatHistory
-                .where(
-                  (chat) => chat['title'].toLowerCase().contains(
-                    searchController.text.toLowerCase(),
-                  ),
-                )
-                .toList();
-
-            return Dialog(
-              backgroundColor: const Color(0xFF0a1e5e),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                constraints: const BoxConstraints(
-                  maxWidth: 500,
-                  maxHeight: 600,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'SEARCH CHAT',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    TextField(
-                      controller: searchController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: 'SEARCH CHAT HERE...',
-                        hintStyle: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          fontSize: 15,
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFF1a3a8a),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: Colors.white70,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(28),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return StatefulBuilder(
+              builder: (context, setState) {
+                List<Map<String, dynamic>> filteredChats = _chatHistory
+                    .where(
+                      (chat) => chat['title'].toLowerCase().contains(
+                        searchController.text.toLowerCase(),
                       ),
-                      onChanged: (value) {
-                        setState(() {});
-                      },
+                    )
+                    .toList();
+
+                return Dialog(
+                  backgroundColor: colors.dialogBackground,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    constraints: const BoxConstraints(
+                      maxWidth: 500,
+                      maxHeight: 600,
                     ),
-
-                    const SizedBox(height: 24),
-
-                    Expanded(
-                      child: filteredChats.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No conversations found',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                  fontSize: 16,
-                                ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'SEARCH CHAT',
+                              style: TextStyle(
+                                color: colors.textPrimary,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
                               ),
-                            )
-                          : ListView.builder(
-                              itemCount: filteredChats.length,
-                              itemBuilder: (context, index) {
-                                return InkWell(
-                                  onTap: () async {
-                                    Navigator.pop(context);
-                                    await _loadChatMessages(
-                                      filteredChats[index]['id'],
-                                    );
-                                    if (!mounted) return;
-                                    ScaffoldMessenger.of(
-                                      this.context,
-                                    ).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Opened ${filteredChats[index]['title']}',
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.close,
+                                color: colors.textSecondary,
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        TextField(
+                          controller: searchController,
+                          style: TextStyle(color: colors.textPrimary),
+                          decoration: InputDecoration(
+                            hintText: 'SEARCH CHAT HERE...',
+                            hintStyle: TextStyle(
+                              color: colors.textSecondary.withValues(
+                                alpha: 0.5,
+                              ),
+                              fontSize: 15,
+                            ),
+                            filled: true,
+                            fillColor: colors.backgroundEnd,
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: colors.textSecondary,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(28),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 16,
+                            ),
+                          ),
+                          onChanged: (value) {
+                            setState(() {});
+                          },
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        Expanded(
+                          child: filteredChats.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    'No conversations found',
+                                    style: TextStyle(
+                                      color: colors.textSecondary.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: filteredChats.length,
+                                  itemBuilder: (context, index) {
+                                    return InkWell(
+                                      onTap: () async {
+                                        Navigator.pop(context);
+                                        await _loadChatMessages(
+                                          filteredChats[index]['id'],
+                                        );
+                                        if (!mounted) return;
+                                        ScaffoldMessenger.of(
+                                          this.context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Opened ${filteredChats[index]['title']}',
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 16,
+                                        ),
+                                        margin: const EdgeInsets.only(
+                                          bottom: 12,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: colors.botBubble,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          filteredChats[index]['title'],
+                                          style: TextStyle(
+                                            color: colors.textPrimary,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ),
                                     );
                                   },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 16,
-                                    ),
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF1e40af),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      filteredChats[index]['title'],
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                                ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             );
           },
         );
@@ -1923,6 +1970,10 @@ class _ChatScreenState extends State<ChatScreen> {
                           fontSize: 14,
                         ),
                       ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.settings, color: colors.textPrimary),
+                      onPressed: _showSettingsDialog,
                     ),
                     const SizedBox(width: 8),
                   ]

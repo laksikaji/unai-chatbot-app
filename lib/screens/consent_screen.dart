@@ -62,7 +62,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Container(
-                constraints: const BoxConstraints(maxWidth: 500),
+                constraints: const BoxConstraints(maxWidth: 600),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF2563eb), Color(0xFF1e40af)],
@@ -90,13 +90,24 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
                     // Title
                     const Text(
-                      'UNAi Chat',
+                      'ประกาศคุ้มครองข้อมูลส่วนบุคคล',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
-                        letterSpacing: 2,
+                        letterSpacing: 1,
                       ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'ระบบ UNAi Chat bot',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white70,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
 
@@ -109,22 +120,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          // Consent Title
-                          const Text(
-                            'ความยินยอมในการเก็บรวบรวม ใช้ และบันทึกข้อมูลการสนทนา',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                              height: 1.4,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-
                           // Scrollable Consent Content
                           Container(
-                            height: 280,
+                            height: 250,
                             decoration: BoxDecoration(
                               color: Colors.grey[100],
                               borderRadius: BorderRadius.circular(12),
@@ -139,81 +137,215 @@ class _ConsentScreenState extends State<ConsentScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Text(
-                                      'ข้าพเจ้ายินยอมให้ระบบแชทบอททำการเก็บรวบรวม ใช้ และบันทึกข้อมูลการสนทนาของข้าพเจ้า ซึ่งรวมถึงข้อความที่ใช้สนทนากับแชทบอท วันและเวลาที่ใช้งาน เพื่อวัตถุประสงค์ดังต่อไปนี้',
+                                      'วัตถุประสงค์',
                                       style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.black87,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    const Text(
-                                      '1. เพื่อจัดเก็บประวัติการสนทนาและแสดงผลย้อนหลังแก่ผู้ใช้งาน\n2. เพื่อปรับปรุง พัฒนา และเพิ่มประสิทธิภาพการให้บริการของระบบแชทบอท',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.black87,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    const Text(
-                                      'ระบบจะเก็บรวบรวมและใช้ข้อมูลดังกล่าวเฉพาะตามวัตถุประสงค์ที่ระบุไว้เท่านั้น และจะไม่เปิดเผยข้อมูลแก่บุคคลภายนอก เว้นแต่เป็นไปตามที่กฎหมายกำหนด',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.black87,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    const Text(
-                                      'ระยะเวลาการจัดเก็บข้อมูล',
-                                      style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     const Text(
-                                      'ระบบจะจัดเก็บข้อมูลการสนทนาของท่านตลอดระยะเวลาที่ท่านมีบัญชีผู้ใช้งานในระบบ หรือจนกว่าท่านจะใช้สิทธิ์ในการลบข้อมูลหรือยกเลิกบัญชีผู้ใช้งาน',
+                                      'ระบบ UNAi CHAT BOT จัดทำขึ้นเพื่อให้บริการตอบคำถามและช่วยแก้ไขปัญหาเบื้องต้นแก่ผู้ใช้งาน โดยมีความจำเป็นต้องเก็บรวบรวม ใช้ และบันทึกข้อมูลส่วนบุคคลของผู้ใช้งาน เพื่อให้',
                                       style: TextStyle(
-                                        fontSize: 15,
+                                        fontSize: 16,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        bottom: 4,
+                                      ),
+                                      child: Text(
+                                        '• ผู้ใช้งานสามารถตรวจสอบและเรียกดูประวัติการสนทนาย้อนหลังได้',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        bottom: 8,
+                                      ),
+                                      child: Text(
+                                        '• ผู้พัฒนาระบบสามารถนำข้อมูลไปใช้ในการวิเคราะห์ ปรับปรุง และพัฒนาประสิทธิภาพการให้บริการของระบบ',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    const Text(
+                                      'ทั้งนี้ ระบบจะเก็บรวบรวม ใช้ และบันทึกข้อมูลส่วนบุคคลเท่าที่จำเป็นตามวัตถุประสงค์ดังกล่าวเท่านั้น',
+                                      style: TextStyle(
+                                        fontSize: 16,
                                         color: Colors.black87,
                                         height: 1.5,
                                       ),
                                     ),
                                     const SizedBox(height: 16),
                                     const Text(
-                                      'สิทธิในการจัดการข้อมูล',
+                                      'ประเภทข้อมูลส่วนบุคคลที่มีการเก็บรวบรวม',
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        bottom: 4,
+                                      ),
+                                      child: Text(
+                                        '• ข้อความที่ใช้สนทนากับระบบแชทบอท',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        bottom: 4,
+                                      ),
+                                      child: Text(
+                                        '• วันและเวลาที่เข้าใช้งานระบบ',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        bottom: 8,
+                                      ),
+                                      child: Text(
+                                        '• ข้อมูลทางเทคนิคที่เกี่ยวข้องกับการใช้งานระบบ เช่น Log File',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      'ระยะเวลาการเก็บรักษาข้อมูล',
+                                      style: TextStyle(
+                                        fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     const Text(
-                                      'ข้าพเจ้าทราบและเข้าใจว่า',
+                                      'ระบบจะเก็บรวบรวม ใช้ และบันทึกข้อมูลส่วนบุคคลตามวัตถุประสงค์ เป็นระยะเวลาเท่าที่จำเป็น หรือ ตลอดระยะเวลาที่ผู้ใช้งานยังมีบัญชีผู้ใช้งานในระบบ',
                                       style: TextStyle(
-                                        fontSize: 15,
+                                        fontSize: 16,
                                         color: Colors.black87,
                                         height: 1.5,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     const Text(
-                                      '• ข้าพเจ้าสามารถเลือก ลบประวัติการสนทนาเฉพาะบางรายการ ได้ด้วยตนเอง\n• หรือสามารถเลือก ลบบัญชีผู้ใช้งาน ซึ่งระบบจะดำเนินการลบข้อมูลการสนทนาและข้อมูลที่เกี่ยวข้องทั้งหมดออกจากระบบอย่างถาวร',
+                                      'ทั้งนี้ ผู้ใช้งานสามารถใช้สิทธิในการลบข้อมูลส่วนบุคคล หรือลบบัญชีผู้ใช้งานเพื่อเพิกถอนความยินยอมได้ตลอดเวลา',
                                       style: TextStyle(
-                                        fontSize: 15,
+                                        fontSize: 16,
                                         color: Colors.black87,
                                         height: 1.5,
                                       ),
                                     ),
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: 16),
                                     const Text(
-                                      'โดยการลบบัญชีผู้ใช้งานถือเป็นการถอนความยินยอมในการเก็บรวบรวมและใช้ข้อมูลทั้งหมด',
+                                      'สิทธิของเจ้าของข้อมูลส่วนบุคคล',
                                       style: TextStyle(
-                                        fontSize: 15,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'เจ้าของข้อมูลส่วนบุคคลมีสิทธิตามกฎหมายคุ้มครองข้อมูลส่วนบุคคล ดังต่อไปนี้',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        bottom: 4,
+                                      ),
+                                      child: Text(
+                                        '• สิทธิในการเข้าถึงและขอรับสำเนาข้อมูลส่วนบุคคลของตน',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        bottom: 4,
+                                      ),
+                                      child: Text(
+                                        '• สิทธิในการขอแก้ไขข้อมูลส่วนบุคคลให้ถูกต้องและเป็นปัจจุบัน',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        bottom: 4,
+                                      ),
+                                      child: Text(
+                                        '• สิทธิในการลบหรือทำลายข้อมูลส่วนบุคคล',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 16,
+                                        bottom: 8,
+                                      ),
+                                      child: Text(
+                                        '• สิทธิในการเพิกถอนความยินยอมในการประมวลผลข้อมูลส่วนบุคคล',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                    const Text(
+                                      'การเพิกถอนความยินยอมจะไม่กระทบต่อการประมวลผลข้อมูลส่วนบุคคลที่ได้ดำเนินการไปแล้วโดยชอบด้วยกฎหมายก่อนการเพิกถอน',
+                                      style: TextStyle(
+                                        fontSize: 16,
                                         color: Colors.black87,
                                         height: 1.5,
                                       ),
@@ -222,16 +354,61 @@ class _ConsentScreenState extends State<ConsentScreen> {
                                     const Text(
                                       'กรณีไม่ให้ความยินยอม',
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     const Text(
-                                      'หากข้าพเจ้าไม่ให้ความยินยอม ระบบจะไม่ทำการบันทึกประวัติการสนทนา และข้าพเจ้าสามารถเลือกใช้งานระบบในโหมด Guest ซึ่งจะไม่มีการจัดเก็บข้อมูลการสนทนาใด ๆ',
+                                      'หากท่านไม่ประสงค์ให้ความยินยอม ระบบจะไม่บันทึกประวัติการสนทนาของท่าน',
                                       style: TextStyle(
-                                        fontSize: 15,
+                                        fontSize: 16,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      'ทั้งนี้ ท่านยังสามารถเลือกใช้งานระบบในโหมด Guest ซึ่งจะไม่มีการจัดเก็บข้อมูลการสนทนาใด ๆ',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      'การรักษาความมั่นคงปลอดภัยของข้อมูล',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'ระบบ UNAi CHAT BOT จัดให้มีมาตรการรักษาความมั่นคงปลอดภัยของข้อมูลส่วนบุคคลที่เหมาะสม เพื่อป้องกันการเข้าถึง การใช้ การแก้ไข หรือการเปิดเผยข้อมูลส่วนบุคคลโดยปราศจากอำนาจหรือโดยมิชอบ และจะไม่เปิดเผยข้อมูลส่วนบุคคลแก่บุคคลภายนอก เว้นแต่เป็นไปตามที่กฎหมายกำหนด',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black87,
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      'การให้ความยินยอม',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'ข้าพเจ้าได้อ่านและเข้าใจรายละเอียดเกี่ยวกับการเก็บรวบรวม ใช้ และบันทึกข้อมูลส่วนบุคคลตามที่ระบุไว้ข้างต้นแล้ว',
+                                      style: TextStyle(
+                                        fontSize: 16,
                                         color: Colors.black87,
                                         height: 1.5,
                                       ),
@@ -288,6 +465,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                                                 ),
                                         ),
                                       ),
+                                      const SizedBox(width: 8),
                                       const Text(
                                         'ยินยอม',
                                         style: TextStyle(
@@ -343,6 +521,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                                                 ),
                                         ),
                                       ),
+                                      const SizedBox(width: 8),
                                       const Text(
                                         'ไม่ยินยอม',
                                         style: TextStyle(

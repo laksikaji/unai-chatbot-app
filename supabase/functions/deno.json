@@ -1,18 +1,12 @@
 {
   "compilerOptions": {
-<<<<<<< HEAD
-    "allowJs": true,
+    "strict": false,
     "lib": [
       "deno.window"
     ],
-    "strict": true
-  }
-}
-=======
-    "strict": false,
-    "lib": ["deno.window"],
-    "types": ["https://deno.land/x/deno@v1.30.0/cli/dts/lib.deno.d.ts"]
+    "types": [
+      "https://deno.land/x/deno@v1.30.0/cli/dts/lib.deno.d.ts"
+    ]
   },
   "importMap": "./import_map.json"
 }
->>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624

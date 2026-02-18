@@ -178,7 +178,6 @@ class SupabaseService {
       rethrow;
     }
   }
-<<<<<<< HEAD
 
   // System Settings
   Future<String?> getSystemSetting(String key) async {
@@ -202,6 +201,4 @@ class SupabaseService {
       'updated_at': DateTime.now().toIso8601String(),
     });
   }
-=======
->>>>>>> 58ed6caa9461429e61c2b34b485ebbe7bac64624
 }

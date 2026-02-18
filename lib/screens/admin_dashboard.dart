@@ -487,8 +487,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           _buildAiModelCard(colors),
                           const SizedBox(height: 16),
 
-                          // API Usage Card
-                          _buildApiUsageCard(colors),
+                          // API Usage Section
+                          _buildApiUsageSection(colors),
                         ],
                       ),
                     ),
@@ -1077,7 +1077,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildApiUsageCard(ThemeColors colors) {
+  Widget _buildEmbeddingUsageCard(
+    ThemeColors colors,
+    Map<int, Map<String, dynamic>> latestLogs,
+  ) {
     return Card(
       color: colors.inputField,
       child: Padding(
@@ -1085,13 +1088,55 @@ class _AdminDashboardState extends State<AdminDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Existing API Usage Table
             Row(
               children: [
-                Icon(Icons.analytics, color: colors.textPrimary, size: 32),
+                const Icon(Icons.memory, color: Colors.purpleAccent, size: 32),
                 const SizedBox(width: 12),
                 Text(
-                  'API Usage',
+                  'Embedding Usage',
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Used for searching knowledge base (Always active)',
+              style: TextStyle(color: colors.textSecondary, fontSize: 14),
+            ),
+            const SizedBox(height: 20),
+            _buildUsageRow(
+              colors,
+              'Key #1',
+              21,
+              latestLogs,
+            ), // Index 21 for Embedding
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroqUsageCard(
+    ThemeColors colors,
+    Map<int, Map<String, dynamic>> latestLogs,
+  ) {
+    return Card(
+      color: colors.inputField,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.flash_on, color: Colors.orange, size: 32),
+                const SizedBox(width: 12),
+                Text(
+                  'Groq Usage',
                   style: TextStyle(
                     color: colors.textPrimary,
                     fontSize: 20,
@@ -1101,125 +1146,194 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ],
             ),
             const SizedBox(height: 20),
-            StreamBuilder<List<Map<String, dynamic>>>(
-              stream: _supabaseService.client
-                  .from('api_usage_logs')
-                  .stream(primaryKey: ['id'])
-                  .order('timestamp', ascending: false)
-                  .limit(50), // Fetch enough logs to cover all keys
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(color: colors.textPrimary),
-                  );
-                }
-
-                final logs = snapshot.data!;
-                // Map to store latest log for each key index
-                final Map<int, Map<String, dynamic>> latestLogs = {};
-
-                for (var log in logs) {
-                  final index = log['api_key_index'] as int?;
-                  if (index != null && !latestLogs.containsKey(index)) {
-                    latestLogs[index] = log;
-                  }
-                }
-
-                return Column(
-                  children: List.generate(5, (index) {
-                    final keyIndex = index + 1; // Database uses 1-based index
-                    final data = latestLogs[keyIndex];
-                    final requestsRemaining = data?['requests_remaining'] ?? 0;
-                    final requestsLimit = data?['requests_limit'] ?? 14400;
-                    final percentage = data != null
-                        ? requestsRemaining / requestsLimit
-                        : 0.0;
-
-                    Color progressColor;
-                    if (percentage > 0.5) {
-                      progressColor = Colors.green;
-                    } else if (percentage > 0.2) {
-                      progressColor = Colors.orange;
-                    } else {
-                      progressColor = Colors.red;
-                    }
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Key #$keyIndex',
-                                style: TextStyle(
-                                  color: colors.textPrimary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                data != null
-                                    ? '$requestsRemaining / $requestsLimit'
-                                    : 'No Data',
-                                style: TextStyle(
-                                  color: colors.textPrimary.withValues(
-                                    alpha: 0.9,
-                                  ),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          LinearProgressIndicator(
-                            value: percentage,
-                            backgroundColor: colors.divider.withValues(
-                              alpha: 0.2,
-                            ),
-                            color: data != null ? progressColor : Colors.grey,
-                            minHeight: 8,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          if (data != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Resets: ${data['reset_time'] ?? '-'}',
-                                    style: TextStyle(
-                                      color: colors.textSecondary.withValues(
-                                        alpha: 0.8,
-                                      ),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  Text(
-                                    _formatTimestamp(data['timestamp']),
-                                    style: const TextStyle(
-                                      color: Colors.amberAccent,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                    );
-                  }),
+            Column(
+              children: List.generate(5, (index) {
+                final keyIndex = index + 1; // Groq 1-5
+                return _buildUsageRow(
+                  colors,
+                  'Key #$keyIndex',
+                  keyIndex,
+                  latestLogs,
                 );
-              },
+              }),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildGeminiChatUsageCard(
+    ThemeColors colors,
+    Map<int, Map<String, dynamic>> latestLogs,
+  ) {
+    return Card(
+      color: colors.inputField,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.auto_awesome,
+                  color: Colors.blueAccent,
+                  size: 32,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Gemini Usage',
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Column(
+              children: List.generate(5, (index) {
+                final keyIndex = index + 11; // Gemini Chat 11-15
+                return _buildUsageRow(
+                  colors,
+                  'Key #${index + 1}',
+                  keyIndex,
+                  latestLogs,
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUsageRow(
+    ThemeColors colors,
+    String label,
+    int backendKeyIndex,
+    Map<int, Map<String, dynamic>> latestLogs,
+  ) {
+    final data = latestLogs[backendKeyIndex];
+    final requestsRemaining = data?['requests_remaining'] ?? 0;
+    final requestsLimit = data?['requests_limit'] ?? 1500; // Default limit
+    final percentage = data != null ? requestsRemaining / requestsLimit : 0.0;
+
+    Color progressColor;
+    if (percentage > 0.5) {
+      progressColor = Colors.green;
+    } else if (percentage > 0.2) {
+      progressColor = Colors.orange;
+    } else {
+      progressColor = Colors.red;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: colors.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                data != null
+                    ? '$requestsRemaining / $requestsLimit'
+                    : 'No Data',
+                style: TextStyle(
+                  color: colors.textPrimary.withValues(alpha: 0.9),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: percentage,
+            backgroundColor: colors.divider.withValues(alpha: 0.2),
+            color: data != null ? progressColor : Colors.grey,
+            minHeight: 8,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          if (data != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Resets: ${data['reset_time'] ?? '-'}',
+                    style: TextStyle(
+                      color: colors.textSecondary.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    _formatTimestamp(data['timestamp']),
+                    style: const TextStyle(
+                      color: Colors.amberAccent,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildApiUsageSection(ThemeColors colors) {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: _supabaseService.client
+          .from('api_usage_logs')
+          .stream(primaryKey: ['id'])
+          .order('timestamp', ascending: false)
+          .limit(100), // Increased limit to cover all keys
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(color: colors.textPrimary),
+          );
+        }
+
+        final logs = snapshot.data!;
+        final Map<int, Map<String, dynamic>> latestLogs = {};
+
+        for (var log in logs) {
+          final index = log['api_key_index'] as int?;
+          if (index != null && !latestLogs.containsKey(index)) {
+            latestLogs[index] = log;
+          }
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Embedding Card
+            _buildEmbeddingUsageCard(colors, latestLogs),
+            const SizedBox(height: 16),
+
+            // 2. Groq Card
+            _buildGroqUsageCard(colors, latestLogs),
+            const SizedBox(height: 16),
+
+            // 3. Gemini Chat Card
+            _buildGeminiChatUsageCard(colors, latestLogs),
+          ],
+        );
+      },
     );
   }
 

@@ -678,38 +678,68 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     ),
                     const SizedBox(height: 32),
 
-                    // Light Theme Option
-                    _buildThemeOption(
-                      context,
-                      themeProvider,
-                      AppTheme.light,
-                      'LIGHT THEME',
-                      'สีขาว - ธีมสว่าง',
-                      colors,
-                    ),
+                    // Scrollable Area (Height for approx 4 items)
+                    SizedBox(
+                      height: 320, // Approx height for 4 items
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            // Light Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.light,
+                              'LIGHT THEME',
+                              'สีขาว - ธีมสว่าง',
+                              colors,
+                            ),
+                            const SizedBox(height: 16),
 
-                    const SizedBox(height: 16),
+                            // Blue Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.blue,
+                              'BLUE THEME',
+                              'สีน้ำเงิน - ธีมทะเล',
+                              colors,
+                            ),
+                            const SizedBox(height: 16),
 
-                    // Blue Theme Option
-                    _buildThemeOption(
-                      context,
-                      themeProvider,
-                      AppTheme.blue,
-                      'BLUE THEME',
-                      'สีน้ำเงิน - ธีมฟ้า',
-                      colors,
-                    ),
+                            // Dark Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.dark,
+                              'DARK THEME',
+                              'สีดำ - ธีมมืด',
+                              colors,
+                            ),
+                            const SizedBox(height: 16),
 
-                    const SizedBox(height: 16),
+                            // Pink Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.pink,
+                              'PINK THEME',
+                              'สีชมพู - ธีมน่ารัก',
+                              colors,
+                            ),
+                            const SizedBox(height: 16),
 
-                    // Dark Theme Option
-                    _buildThemeOption(
-                      context,
-                      themeProvider,
-                      AppTheme.dark,
-                      'DARK THEME',
-                      'สีดำ - ธีมมืด',
-                      colors,
+                            // Green Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.green,
+                              'GREEN THEME',
+                              'สีเขียว - ธีมป่าไม้',
+                              colors,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
 
                     const SizedBox(height: 32),

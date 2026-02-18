@@ -5,6 +5,7 @@ import '../theme_provider.dart';
 import 'supabase_service.dart';
 import 'home_screen.dart';
 import 'chat_screen.dart';
+import '../services/system_settings_service.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -16,8 +17,74 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   bool _isSyncing = false;
   bool _isUploading = false;
+
+  // AI Model Settings
+  bool _isLoadingModel = false;
+  String _currentAiProvider = 'gemini'; // Default
+  final _systemSettingsService = SystemSettingsService();
+
   Map<String, dynamic>? _lastSyncData;
   final _supabaseService = SupabaseService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSystemSettings();
+  }
+
+  Future<void> _loadSystemSettings() async {
+    setState(() => _isLoadingModel = true);
+    try {
+      final provider = await _systemSettingsService.getAiProvider();
+      if (mounted) {
+        setState(() {
+          _currentAiProvider = provider;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading settings: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingModel = false);
+    }
+  }
+
+  Future<void> _updateAiProvider(String provider) async {
+    if (provider == _currentAiProvider) return;
+
+    setState(() => _isLoadingModel = true);
+    try {
+      await _systemSettingsService.updateAiProvider(provider);
+      if (mounted) {
+        setState(() {
+          _currentAiProvider = provider;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('AI Provider switched to ${provider.toUpperCase()}'),
+            backgroundColor: provider == 'groq' ? Colors.orange : Colors.blue,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating settings: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingModel = false);
+    }
+  }
 
   // Sync Google Sheets
   Future<void> _syncGoogleSheets() async {
@@ -414,6 +481,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                           // Clear Data Card
                           _buildClearDataCard(colors),
+                          const SizedBox(height: 16),
+
+                          // AI Model Card
+                          _buildAiModelCard(colors),
                           const SizedBox(height: 16),
 
                           // API Usage Card
@@ -912,6 +983,100 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  Widget _buildAiModelCard(ThemeColors colors) {
+    return Card(
+      color: colors.inputField,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colors.backgroundStart.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text('🧠', style: TextStyle(fontSize: 32)),
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AI Provider',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Select AI model for chat responses',
+                      style: TextStyle(
+                        color: colors.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                if (_isLoadingModel) const Spacer(),
+                if (_isLoadingModel)
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: colors.backgroundStart,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colors.divider.withValues(alpha: 0.1),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildModelOption(
+                      title: 'Groq',
+                      value: 'groq',
+                      icon: Icons.bolt,
+                      color: Colors.orange,
+                      isSelected: _currentAiProvider == 'groq',
+                      colors: colors,
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildModelOption(
+                      title: 'Gemini',
+                      value: 'gemini',
+                      icon: Icons.auto_awesome,
+                      color: Colors.blueAccent,
+                      isSelected: _currentAiProvider == 'gemini',
+                      colors: colors,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildApiUsageCard(ThemeColors colors) {
     return Card(
       color: colors.inputField,
@@ -920,6 +1085,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Existing API Usage Table
             Row(
               children: [
                 Icon(Icons.analytics, color: colors.textPrimary, size: 32),
@@ -1050,6 +1216,46 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   }),
                 );
               },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModelOption({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+    required bool isSelected,
+    required ThemeColors colors,
+  }) {
+    return GestureDetector(
+      onTap: _isLoadingModel ? null : () => _updateAiProvider(value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? color : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : colors.textSecondary,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                color: isSelected ? Colors.white : colors.textSecondary,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),

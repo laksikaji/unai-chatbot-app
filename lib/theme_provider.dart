@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum AppTheme { light, blue, dark, pink, green }
+enum AppTheme {
+  light,
+  blue,
+  dark,
+  pink,
+  green,
+  red,
+  orange,
+  yellow,
+  sky,
+  purple,
+}
 
 class ThemeProvider extends ChangeNotifier {
   AppTheme _currentTheme = AppTheme.blue;
@@ -54,6 +65,16 @@ class ThemeProvider extends ChangeNotifier {
         return ThemeColors.pink();
       case AppTheme.green:
         return ThemeColors.green();
+      case AppTheme.red:
+        return ThemeColors.red();
+      case AppTheme.orange:
+        return ThemeColors.orange();
+      case AppTheme.yellow:
+        return ThemeColors.yellow();
+      case AppTheme.sky:
+        return ThemeColors.sky();
+      case AppTheme.purple:
+        return ThemeColors.purple();
     }
   }
 }
@@ -191,6 +212,106 @@ class ThemeColors {
       buttonPrimary: const Color(0xFF4CAF50), // Green 500
       buttonSecondary: const Color(0xFF2E7D32), // Green 800
       divider: const Color(0xFF4CAF50).withValues(alpha: 0.3),
+    );
+  }
+
+  // Red Theme (สีแดง)
+  factory ThemeColors.red() {
+    return ThemeColors(
+      backgroundStart: const Color(0xFFB71C1C), // Red 900
+      backgroundEnd: const Color(0xFF880E4F), // Dark Red
+      appBar: const Color(0xFFD32F2F), // Red 700
+      drawer: const Color(0xFFB71C1C),
+      textPrimary: const Color(0xFFFFEBEE), // Red 50
+      textSecondary: const Color(0xFFEF9A9A), // Red 200
+      userBubble: const Color(0xFFE53935), // Red 600
+      botBubble: const Color(0xFFC62828), // Red 800
+      inputArea: const Color(0xFFB71C1C),
+      inputField: const Color(0xFFD32F2F), // Red 700
+      dialogBackground: const Color(0xFFB71C1C),
+      buttonPrimary: const Color(0xFFE53935), // Red 600
+      buttonSecondary: const Color(0xFFC62828), // Red 800
+      divider: const Color(0xFFE57373).withValues(alpha: 0.3),
+    );
+  }
+
+  // Orange Theme (สีส้ม)
+  factory ThemeColors.orange() {
+    return ThemeColors(
+      backgroundStart: const Color(0xFFE65100), // Orange 900
+      backgroundEnd: const Color(0xFFBF360C), // Deep Orange 900
+      appBar: const Color(0xFFF57C00), // Orange 700
+      drawer: const Color(0xFFE65100),
+      textPrimary: const Color(0xFFFFF3E0), // Orange 50
+      textSecondary: const Color(0xFFFFCC80), // Orange 200
+      userBubble: const Color(0xFFFB8C00), // Orange 600
+      botBubble: const Color(0xFFEF6C00), // Orange 800
+      inputArea: const Color(0xFFE65100),
+      inputField: const Color(0xFFF57C00), // Orange 700
+      dialogBackground: const Color(0xFFE65100),
+      buttonPrimary: const Color(0xFFFB8C00), // Orange 600
+      buttonSecondary: const Color(0xFFEF6C00), // Orange 800
+      divider: const Color(0xFFFFB74D).withValues(alpha: 0.3),
+    );
+  }
+
+  // Yellow Theme (สีเหลือง)
+  factory ThemeColors.yellow() {
+    return ThemeColors(
+      backgroundStart: const Color(0xFFFFFDE7), // Yellow 50 (Lighter)
+      backgroundEnd: const Color(0xFFFFF9C4), // Yellow 100 (Light)
+      appBar: const Color(0xFFFFEA00), // Yellow Accent
+      drawer: const Color(0xFFFFD600),
+      textPrimary: const Color(0xFF263238), // Blue Grey 900
+      textSecondary: const Color(0xFF37474F), // Blue Grey 800
+      userBubble: const Color(0xFFFFC107), // Amber 500
+      botBubble: const Color(0xFFFFF8E1), // Amber 50
+      inputArea: const Color(0xFFFFD600),
+      inputField: const Color(0xFFFFF9C4), // Yellow 100
+      dialogBackground: const Color(0xFFFFD600),
+      buttonPrimary: const Color(0xFFFFB300), // Amber 700
+      buttonSecondary: const Color(0xFFFBC02D), // Yellow 800
+      divider: const Color(0xFFFFAB00).withValues(alpha: 0.3),
+    );
+  }
+
+  // Sky Theme (สีฟ้า)
+  factory ThemeColors.sky() {
+    return ThemeColors(
+      backgroundStart: const Color(0xFF0288D1), // Light Blue 700
+      backgroundEnd: const Color(0xFF01579B), // Light Blue 900
+      appBar: const Color(0xFF03A9F4), // Light Blue 500
+      drawer: const Color(0xFF0288D1),
+      textPrimary: const Color(0xFFE1F5FE), // Light Blue 50
+      textSecondary: const Color(0xFFB3E5FC), // Light Blue 100
+      userBubble: const Color(0xFF29B6F6), // Light Blue 400
+      botBubble: const Color(0xFF004C8C), // Darker Blue for AI Bubble
+      inputArea: const Color(0xFF0288D1),
+      inputField: const Color(0xFF0277BD), // Light Blue 800
+      dialogBackground: const Color(0xFF0288D1),
+      buttonPrimary: const Color(0xFF039BE5), // Light Blue 600
+      buttonSecondary: const Color(0xFF01579B), // Light Blue 900
+      divider: const Color(0xFF4FC3F7).withValues(alpha: 0.3),
+    );
+  }
+
+  // Purple Theme (สีม่วง)
+  factory ThemeColors.purple() {
+    return ThemeColors(
+      backgroundStart: const Color(0xFF6A1B9A), // Purple 800
+      backgroundEnd: const Color(0xFF4A148C), // Purple 900
+      appBar: const Color(0xFF7B1FA2), // Purple 700
+      drawer: const Color(0xFF6A1B9A),
+      textPrimary: const Color(0xFFF3E5F5), // Purple 50
+      textSecondary: const Color(0xFFE1BEE7), // Purple 100
+      userBubble: const Color(0xFF9C27B0), // Purple 500
+      botBubble: const Color(0xFF6A1B9A), // Purple 800
+      inputArea: const Color(0xFF6A1B9A),
+      inputField: const Color(0xFF4A148C), // Purple 900
+      dialogBackground: const Color(0xFF6A1B9A),
+      buttonPrimary: const Color(0xFF8E24AA), // Purple 600
+      buttonSecondary: const Color(0xFF4A148C), // Purple 900
+      divider: const Color(0xFFBA68C8).withValues(alpha: 0.3),
     );
   }
 }

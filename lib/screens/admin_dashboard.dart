@@ -684,17 +684,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            // Light Theme Option
-                            _buildThemeOption(
-                              context,
-                              themeProvider,
-                              AppTheme.light,
-                              'LIGHT THEME',
-                              'สีขาว - ธีมสว่าง',
-                              colors,
-                            ),
-                            const SizedBox(height: 16),
-
                             // Blue Theme Option
                             _buildThemeOption(
                               context,
@@ -717,6 +706,39 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             ),
                             const SizedBox(height: 16),
 
+                            // Green Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.green,
+                              'GREEN THEME',
+                              'สีเขียว - ธีมป่าไม้',
+                              colors,
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Light Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.light,
+                              'LIGHT THEME',
+                              'สีขาว - ธีมสว่าง',
+                              colors,
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Orange Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.orange,
+                              'ORANGE THEME',
+                              'สีส้ม - ธีมสดใส',
+                              colors,
+                            ),
+                            const SizedBox(height: 16),
+
                             // Pink Theme Option
                             _buildThemeOption(
                               context,
@@ -728,13 +750,46 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             ),
                             const SizedBox(height: 16),
 
-                            // Green Theme Option
+                            // Purple Theme Option
                             _buildThemeOption(
                               context,
                               themeProvider,
-                              AppTheme.green,
-                              'GREEN THEME',
-                              'สีเขียว - ธีมป่าไม้',
+                              AppTheme.purple,
+                              'PURPLE THEME',
+                              'สีม่วง - ธีมลึกลับ',
+                              colors,
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Red Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.red,
+                              'RED THEME',
+                              'สีแดง - ธีมร้อนแรง',
+                              colors,
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Sky Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.sky,
+                              'SKY THEME',
+                              'สีฟ้า - ธีมท้องฟ้า',
+                              colors,
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Yellow Theme Option
+                            _buildThemeOption(
+                              context,
+                              themeProvider,
+                              AppTheme.yellow,
+                              'YELLOW THEME',
+                              'สีเหลือง - ธีมอบอุ่น',
                               colors,
                             ),
                           ],

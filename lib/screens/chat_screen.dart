@@ -1990,6 +1990,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         final colors = themeProvider.colors;
+        final screenWidth = MediaQuery.sizeOf(context).width;
         return Scaffold(
           appBar: AppBar(
             backgroundColor: colors.appBar,
@@ -2009,9 +2010,9 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 Image.asset(
                   'assets/images/unai_logo.png',
-                  height: MediaQuery.of(context).size.width < 600 ? 38 : 50,
+                  height: screenWidth < 600 ? 38 : 50,
                 ),
-                if (MediaQuery.of(context).size.width >= 600) ...[
+                if (screenWidth >= 600) ...[
                   const SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

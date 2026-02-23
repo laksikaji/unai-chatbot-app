@@ -32,3 +32,6 @@ build/
 
 # Sensitive Config Files
 lib/config/supabase_config.dart
+
+# Firebase
+.firebase/

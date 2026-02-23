@@ -2007,28 +2007,33 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
             title: Row(
               children: [
-                Image.asset('assets/images/unai_logo.png', height: 50),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'UNAi Chatbot',
-                      style: TextStyle(
-                        color: colors.textPrimary,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      'Online',
-                      style: TextStyle(
-                        color: colors.textSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                Image.asset(
+                  'assets/images/unai_logo.png',
+                  height: MediaQuery.of(context).size.width < 600 ? 38 : 50,
                 ),
+                if (MediaQuery.of(context).size.width >= 600) ...[
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'UNAi Chatbot',
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'Online',
+                        style: TextStyle(
+                          color: colors.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
             actions: _isGuestMode

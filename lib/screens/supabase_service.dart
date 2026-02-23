@@ -201,4 +201,50 @@ class SupabaseService {
       'updated_at': DateTime.now().toIso8601String(),
     });
   }
+
+  // Team Contacts
+  Future<List<Map<String, dynamic>>> getTeamContacts() async {
+    try {
+      final response = await client
+          .from('team_contacts')
+          .select()
+          .order('created_at', ascending: true);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint('Error getting team contacts: $e');
+      return [];
+    }
+  }
+
+  Future<void> addTeamContact({
+    required String firstName,
+    required String lastName,
+    required String phone,
+  }) async {
+    await client.from('team_contacts').insert({
+      'first_name': firstName,
+      'last_name': lastName,
+      'phone': phone,
+    });
+  }
+
+  Future<void> updateTeamContact({
+    required String id,
+    required String firstName,
+    required String lastName,
+    required String phone,
+  }) async {
+    await client
+        .from('team_contacts')
+        .update({
+          'first_name': firstName,
+          'last_name': lastName,
+          'phone': phone,
+        })
+        .eq('id', id);
+  }
+
+  Future<void> deleteTeamContact(String id) async {
+    await client.from('team_contacts').delete().eq('id', id);
+  }
 }

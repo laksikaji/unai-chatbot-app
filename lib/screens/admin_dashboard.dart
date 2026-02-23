@@ -26,10 +26,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Map<String, dynamic>? _lastSyncData;
   final _supabaseService = SupabaseService();
 
+  // Team Contacts
+  List<Map<String, dynamic>> _teamContacts = [];
+  bool _isLoadingContacts = false;
+
   @override
   void initState() {
     super.initState();
     _loadSystemSettings();
+    _loadTeamContacts();
   }
 
   Future<void> _loadSystemSettings() async {
@@ -84,6 +89,234 @@ class _AdminDashboardState extends State<AdminDashboard> {
     } finally {
       if (mounted) setState(() => _isLoadingModel = false);
     }
+  }
+
+  // ── Team Contacts ──────────────────────────────────────────
+  Future<void> _loadTeamContacts() async {
+    setState(() => _isLoadingContacts = true);
+    final contacts = await _supabaseService.getTeamContacts();
+    if (mounted) {
+      setState(() {
+        _teamContacts = contacts;
+        _isLoadingContacts = false;
+      });
+    }
+  }
+
+  Future<void> _showContactDialog({Map<String, dynamic>? contact}) async {
+    final firstNameCtrl = TextEditingController(
+      text: contact?['first_name'] ?? '',
+    );
+    final lastNameCtrl = TextEditingController(
+      text: contact?['last_name'] ?? '',
+    );
+    final phoneCtrl = TextEditingController(text: contact?['phone'] ?? '');
+    final isEdit = contact != null;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => Consumer<ThemeProvider>(
+        builder: (ctx, themeProvider, _) {
+          final colors = themeProvider.colors;
+          return Dialog(
+            backgroundColor: colors.dialogBackground,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(28),
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isEdit ? 'Edit Contact' : 'Add Contact',
+                    style: TextStyle(
+                      color: colors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildContactTextField(
+                    colors,
+                    firstNameCtrl,
+                    'First Name',
+                    Icons.person,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildContactTextField(
+                    colors,
+                    lastNameCtrl,
+                    'Last Name',
+                    Icons.person_outline,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildContactTextField(
+                    colors,
+                    phoneCtrl,
+                    'Phone',
+                    Icons.phone,
+                    keyboardType: TextInputType.phone,
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(color: colors.textSecondary),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.buttonPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () async {
+                            final firstName = firstNameCtrl.text.trim();
+                            final lastName = lastNameCtrl.text.trim();
+                            final phone = phoneCtrl.text.trim();
+                            if (firstName.isEmpty ||
+                                lastName.isEmpty ||
+                                phone.isEmpty) {
+                              return;
+                            }
+                            Navigator.pop(ctx);
+                            try {
+                              if (isEdit) {
+                                await _supabaseService.updateTeamContact(
+                                  id: contact['id'],
+                                  firstName: firstName,
+                                  lastName: lastName,
+                                  phone: phone,
+                                );
+                              } else {
+                                await _supabaseService.addTeamContact(
+                                  firstName: firstName,
+                                  lastName: lastName,
+                                  phone: phone,
+                                );
+                              }
+                              await _loadTeamContacts();
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          child: Text(
+                            'Save',
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteContact(String id, String name) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => Consumer<ThemeProvider>(
+        builder: (ctx, themeProvider, _) {
+          final colors = themeProvider.colors;
+          return AlertDialog(
+            backgroundColor: colors.dialogBackground,
+            title: Text(
+              'Delete Contact',
+              style: TextStyle(color: colors.textPrimary),
+            ),
+            content: Text(
+              'Remove "$name" from the system?',
+              style: TextStyle(color: colors.textSecondary),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: colors.textSecondary),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (confirmed == true) {
+      try {
+        await _supabaseService.deleteTeamContact(id);
+        await _loadTeamContacts();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
+  }
+
+  Widget _buildContactTextField(
+    ThemeColors colors,
+    TextEditingController controller,
+    String label,
+    IconData icon, {
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      style: TextStyle(color: colors.textPrimary),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: colors.textSecondary),
+        prefixIcon: Icon(icon, color: colors.textSecondary, size: 20),
+        filled: true,
+        fillColor: colors.inputField,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 14,
+          horizontal: 16,
+        ),
+      ),
+    );
   }
 
   // Sync Google Sheets
@@ -485,6 +718,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                           // AI Model Card
                           _buildAiModelCard(colors),
+                          const SizedBox(height: 16),
+
+                          // Team Contacts Card
+                          _buildTeamContactsCard(colors),
                           const SizedBox(height: 16),
 
                           // API Usage Section
@@ -1373,6 +1610,257 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                 ],
               ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ── Team Contacts Card ──────────────────────────────────────
+  Widget _buildTeamContactsCard(ThemeColors colors) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colors.dialogBackground,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colors.divider, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0ea5e9).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.contacts_rounded,
+                  color: Color(0xFF0ea5e9),
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Team Contacts',
+                      style: TextStyle(
+                        color: colors.textPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Manage contact list for AI responses',
+                      style: TextStyle(
+                        color: colors.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () => _showContactDialog(),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add Contact'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0ea5e9),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Content
+          if (_isLoadingContacts)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (_teamContacts.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.group_off_outlined,
+                      size: 48,
+                      color: colors.textSecondary,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'No contacts yet.\nPress "Add Contact" to get started.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colors.textSecondary,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            Column(
+              children: [
+                // Table header
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.inputField,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          'Full Name',
+                          style: TextStyle(
+                            color: colors.textSecondary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          'Phone',
+                          style: TextStyle(
+                            color: colors.textSecondary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 80),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // Rows
+                ...List.generate(_teamContacts.length, (i) {
+                  final c = _teamContacts[i];
+                  final fullName = '${c['first_name']} ${c['last_name']}';
+                  return Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: i.isEven
+                          ? colors.dialogBackground
+                          : colors.inputField.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colors.divider, width: 0.5),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor: const Color(
+                                  0xFF0ea5e9,
+                                ).withValues(alpha: 0.15),
+                                child: Text(
+                                  c['first_name'][0].toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Color(0xFF0ea5e9),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Flexible(
+                                child: Text(
+                                  fullName,
+                                  style: TextStyle(
+                                    color: colors.textPrimary,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            c['phone'] ?? '-',
+                            style: TextStyle(
+                              color: colors.textSecondary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.edit_outlined,
+                                size: 18,
+                                color: colors.textSecondary,
+                              ),
+                              tooltip: 'Edit',
+                              onPressed: () => _showContactDialog(contact: c),
+                              constraints: const BoxConstraints(
+                                minWidth: 36,
+                                minHeight: 36,
+                              ),
+                              padding: EdgeInsets.zero,
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                size: 18,
+                                color: Colors.redAccent,
+                              ),
+                              tooltip: 'Delete',
+                              onPressed: () =>
+                                  _confirmDeleteContact(c['id'], fullName),
+                              constraints: const BoxConstraints(
+                                minWidth: 36,
+                                minHeight: 36,
+                              ),
+                              padding: EdgeInsets.zero,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
             ),
         ],
       ),

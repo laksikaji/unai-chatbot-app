@@ -28,8 +28,7 @@ async function logEmbeddingUsage(supabase: any, usedCount: number) {
         const resetDate = new Date(now);
         resetDate.setUTCHours(8, 0, 0, 0);
         if (now.getUTCHours() >= 8) resetDate.setUTCDate(resetDate.getUTCDate() + 1);
-        const ms = resetDate.getTime() - now.getTime();
-        const resetTimeStr = `${Math.floor(ms / 3600000)}h${Math.floor((ms % 3600000) / 60000)}m`;
+        const resetTimeStr = resetDate.toISOString();
 
         await supabase.from('api_usage_logs').insert({
             api_key_index: EMBED_KEY_INDEX,
@@ -98,7 +97,7 @@ serve(async (req: Request) => {
         const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_KEY!);
 
         if (!embeddingKey) {
-            console.error('❌ NO GEMINI_EMBEDDING_KEY FOUND - Embeddings will be NULL!');
+            console.error('NO GEMINI_EMBEDDING_KEY FOUND - Embeddings will be NULL!');
         } else {
             console.log('✓ Using GEMINI_EMBEDDING_KEY for embeddings');
         }

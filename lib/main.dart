@@ -6,7 +6,6 @@ import 'theme_provider.dart';
 import 'screens/supabase_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/chat_screen.dart';
-import 'screens/admin_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,10 +50,9 @@ class _UNAIChatbotAppState extends State<UNAIChatbotApp> {
         debugPrint('User signed in, checking role...');
 
         Future.delayed(Duration.zero, () async {
-          final isAdmin = await SupabaseService().isAdmin();
-          final targetScreen = isAdmin
-              ? const AdminDashboard()
-              : const ChatScreen(isGuest: false);
+          await SupabaseService()
+              .isAdmin(); // ตรวจสอบ role แต่ไม่ใช้ผลในการ redirect
+          const targetScreen = ChatScreen(isGuest: false);
 
           if (mounted) {
             _navigatorKey.currentState?.pushAndRemoveUntil(
@@ -124,9 +122,7 @@ class _UNAIChatbotAppState extends State<UNAIChatbotApp> {
                       body: Center(child: CircularProgressIndicator()),
                     );
                   }
-                  if (snapshot.hasData && snapshot.data == true) {
-                    return const AdminDashboard();
-                  }
+                  // Admin และ User ทั่วไป เข้าหน้า Chat ก่อนเสมอ
                   return const ChatScreen(isGuest: false);
                 },
               )

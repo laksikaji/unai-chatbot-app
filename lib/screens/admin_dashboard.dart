@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
@@ -30,11 +31,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
   List<Map<String, dynamic>> _teamContacts = [];
   bool _isLoadingContacts = false;
 
+  // Countdown Timer
+  Timer? _countdownTimer;
+
   @override
   void initState() {
     super.initState();
     _loadSystemSettings();
     _loadTeamContacts();
+    // อัปเดต UI ทุก 1 วินาที สำหรับ countdown
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadSystemSettings() async {
@@ -1539,9 +1553,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
     Map<int, Map<String, dynamic>> latestLogs,
   ) {
     final data = latestLogs[backendKeyIndex];
-    final requestsRemaining = data?['requests_remaining'] ?? 0;
-    final requestsLimit = data?['requests_limit'] ?? 1500; // Default limit
-    final percentage = data != null ? requestsRemaining / requestsLimit : 0.0;
+    final resetTimeIso = data?['reset_time'] as String?;
+    final alreadyReset = _isReset(resetTimeIso);
+
+    // ถ้า countdown หมดแล้ว → แสดง bar เต็ม
+    final requestsRemaining = alreadyReset
+        ? (data?['requests_limit'] ?? 1500)
+        : (data?['requests_remaining'] ?? 0);
+    final requestsLimit = data?['requests_limit'] ?? 1500;
+    final percentage = data != null
+        ? (requestsRemaining / requestsLimit).clamp(0.0, 1.0)
+        : 0.0;
 
     Color progressColor;
     if (percentage > 0.5) {
@@ -1551,6 +1573,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     } else {
       progressColor = Colors.red;
     }
+
+    final countdownText = _formatCountdown(resetTimeIso);
+    final isResetDone = countdownText == 'Reset!';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -1570,7 +1595,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               Text(
                 data != null
-                    ? '$requestsRemaining / $requestsLimit'
+                    ? '${alreadyReset ? requestsLimit : requestsRemaining} / $requestsLimit'
                     : 'No Data',
                 style: TextStyle(
                   color: colors.textPrimary.withValues(alpha: 0.9),
@@ -1594,12 +1619,29 @@ class _AdminDashboardState extends State<AdminDashboard> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Resets: ${data['reset_time'] ?? '-'}',
-                    style: TextStyle(
-                      color: colors.textSecondary.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        isResetDone ? Icons.check_circle : Icons.timer_outlined,
+                        size: 12,
+                        color: isResetDone
+                            ? Colors.greenAccent
+                            : colors.textSecondary.withValues(alpha: 0.8),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        isResetDone ? 'Reset!' : 'Resets in: $countdownText',
+                        style: TextStyle(
+                          color: isResetDone
+                              ? Colors.greenAccent
+                              : colors.textSecondary.withValues(alpha: 0.8),
+                          fontSize: 12,
+                          fontWeight: isResetDone
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ],
                   ),
                   Text(
                     _formatTimestamp(data['timestamp']),
@@ -1964,5 +2006,40 @@ class _AdminDashboardState extends State<AdminDashboard> {
     } catch (e) {
       return '';
     }
+  }
+
+  /// แปลง ISO timestamp → DateTime (null-safe)
+  DateTime? _parseResetAt(String? iso) {
+    if (iso == null) return null;
+    try {
+      return DateTime.parse(iso).toLocal();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// คำนวณเวลานับถอยหลัง → string HH:MM:SS
+  String _formatCountdown(String? resetTimeIso) {
+    final resetAt = _parseResetAt(resetTimeIso);
+    if (resetAt == null) return '-';
+    final diff = resetAt.difference(DateTime.now());
+    if (diff.isNegative || diff.inSeconds == 0) return 'Reset!';
+    if (diff.inHours >= 24) {
+      final d = diff.inDays;
+      final h = (diff.inHours % 24).toString().padLeft(2, '0');
+      final m = (diff.inMinutes % 60).toString().padLeft(2, '0');
+      return '${d}d $h:$m';
+    }
+    final h = diff.inHours.toString().padLeft(2, '0');
+    final m = (diff.inMinutes % 60).toString().padLeft(2, '0');
+    final s = (diff.inSeconds % 60).toString().padLeft(2, '0');
+    return '$h:$m:$s';
+  }
+
+  /// ตรวจสอบว่า reset แล้วหรือยัง
+  bool _isReset(String? resetTimeIso) {
+    final resetAt = _parseResetAt(resetTimeIso);
+    if (resetAt == null) return false;
+    return DateTime.now().isAfter(resetAt);
   }
 }

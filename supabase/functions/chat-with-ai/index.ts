@@ -35,8 +35,7 @@ async function logGeminiUsage(
         const resetDate = new Date(now);
         resetDate.setUTCHours(8, 0, 0, 0);
         if (now.getUTCHours() >= 8) resetDate.setUTCDate(resetDate.getUTCDate() + 1);
-        const ms = resetDate.getTime() - now.getTime();
-        const resetTimeStr = `${Math.floor(ms / 3600000)}h${Math.floor((ms % 3600000) / 60000)}m`;
+        const resetTimeStr = resetDate.toISOString();
 
         const { error } = await supabase.from('api_usage_logs').insert({
             api_key_index: keyIndex,
@@ -101,13 +100,20 @@ class GeminiChatService {
         return { key: this.apiKeys[index], index: index + 1 };
     }
 
-    async chat(prompt: string, context: string): Promise<{
+    async chat(prompt: string, context: string, chatHistory?: { content: string; isUser: boolean }[]): Promise<{
         text: string;
         keyIndex: number;
         success: boolean;
     }> {
         const { key: apiKey, index: keyIndex } = this.getRandomKeyWithIndex();
         console.log(`Using Gemini chat key #${keyIndex} ending in ...${apiKey.slice(-4)}`);
+
+        // สร้าง conversation history สำหรับ Gemini
+        let historyText = '';
+        if (chatHistory && chatHistory.length > 0) {
+            historyText = '\n\nประวัติการสนทนาล่าสุด:\n' +
+                chatHistory.map(m => `${m.isUser ? 'ผู้ใช้' : 'AI'}: ${m.content}`).join('\n');
+        }
 
         const systemPrompt = `
       คุณคือ "UNAi" ผู้ช่วย AI อัจฉริยะ
@@ -123,6 +129,7 @@ class GeminiChatService {
 
       CONTEXT:
 ${context}
+${historyText}
     `.trim();
 
         try {
@@ -163,7 +170,7 @@ class GroqService {
         return { key: this.apiKeys[index], index: index + 1 };
     }
 
-    async chat(message: string, contextText: string): Promise<{
+    async chat(message: string, contextText: string, chatHistory?: { content: string; isUser: boolean }[]): Promise<{
         text: string;
         keyIndex: number;
         requestsRemaining: number | null;
@@ -191,11 +198,27 @@ class GroqService {
 ${contextText || 'ไม่พบข้อมูลในฐานข้อมูล ตอบตามความรู้ทั่วไป'}
     `.trim();
 
+        // สร้าง messages array พร้อม history
+        const messages: { role: string; content: string }[] = [
+            { role: 'system', content: systemContent },
+        ];
+        // เพิ่ม chat history (10 ข้อความล่าสุด)
+        if (chatHistory && chatHistory.length > 0) {
+            for (const msg of chatHistory) {
+                messages.push({
+                    role: msg.isUser ? 'user' : 'assistant',
+                    content: msg.content,
+                });
+            }
+        }
+        // เพิ่มข้อความล่าสุดของ user
+        messages.push({ role: 'user', content: message });
+
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                messages: [{ role: 'system', content: systemContent }, { role: 'user', content: message }],
+                messages,
                 model: 'llama-3.3-70b-versatile',
                 stream: false,
             }),
@@ -205,7 +228,14 @@ ${contextText || 'ไม่พบข้อมูลในฐานข้อม�
         const requestsLimit = parseInt(response.headers.get('x-ratelimit-limit-requests') ?? '') || null;
         const tokensRemaining = parseInt(response.headers.get('x-ratelimit-remaining-tokens') ?? '') || null;
         const tokensLimit = parseInt(response.headers.get('x-ratelimit-limit-tokens') ?? '') || null;
-        const resetTime = response.headers.get('x-ratelimit-reset-requests') ?? null;
+        const resetTimeRaw = response.headers.get('x-ratelimit-reset-requests') ?? null;
+        const resetTime = (() => {
+            if (!resetTimeRaw) return null;
+            const m = resetTimeRaw.match(/(?:(\d+)m)?([\d.]+)s/);
+            if (!m) return null;
+            const ms = (parseInt(m[1] ?? '0') * 60 + parseFloat(m[2] ?? '0')) * 1000;
+            return new Date(Date.now() + ms).toISOString();
+        })();
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -231,7 +261,11 @@ serve(async (req) => {
     if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
     try {
-        const { message } = await req.json();
+        const { message, chatHistory: rawHistory } = await req.json();
+        // เอาแค่ 10 ข้อความล่าสุด (5 รอบถามตอบ) ไม่รวมข้อความล่าสุดที่ส่งมาใน message
+        const chatHistory = Array.isArray(rawHistory)
+            ? rawHistory.slice(-10).filter((m: any) => m.content && m.content !== '...')
+            : [];
         const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
         const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
         const supabase = createClient(supabaseUrl, supabaseKey);
@@ -319,13 +353,13 @@ serve(async (req) => {
         let responseText = '';
 
         if (aiProvider === 'gemini' && chatService) {
-            const result = await chatService.chat(message, contextText);
+            const result = await chatService.chat(message, contextText, chatHistory);
             responseText = result.text;
             // บันทึก Gemini chat usage (index 11-15)
             logGeminiUsage(supabase, result.keyIndex + 10, GEMINI_CHAT_LIMIT, result.success);
 
         } else if (groqService) {
-            const result = await groqService.chat(message, contextText);
+            const result = await groqService.chat(message, contextText, chatHistory);
             responseText = result.text;
             // บันทึก Groq usage (index 1-5)
             supabase.from('api_usage_logs').insert({

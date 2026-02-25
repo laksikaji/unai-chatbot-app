@@ -123,7 +123,7 @@ class _ChatScreenState extends State<ChatScreen> {
           _messages.add(
             ChatMessage(
               text:
-                  'สวัสดีครับ! ยินดีต้อนรับสู่ UNAi Chatbot บอกข้อมูลอย่างครบถ้วนเพื่อการตอบคำถามที่ไวขึ้น',
+                  'สวัสดีครับ! ยินดีต้อนรับสู่ UNAi Chatbot ผมสามารถให้ความช่วยเหลือและตอบคำถามเกี่ยวกับการใช้งานระบบ UNAi ครับ บอกข้อมูลอย่างครบถ้วนเพื่อการตอบคำถามที่ไวขึ้น',
               isUser: false,
               timestamp: DateTime.now(),
             ),
@@ -168,7 +168,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _messages.add(
           ChatMessage(
             text:
-                'สวัสดีครับ! ยินดีต้อนรับสู่ UNAi Chatbot บอกข้อมูลอย่างครบถ้วนเพื่อการตอบคำถามที่ไวขึ้น',
+                'สวัสดีครับ! ยินดีต้อนรับสู่ UNAi Chatbot ผมสามารถให้ความช่วยเหลือและตอบคำถามเกี่ยวกับการใช้งานระบบ UNAi ครับ บอกข้อมูลอย่างครบถ้วนเพื่อการตอบคำถามที่ไวขึ้น',
             isUser: false,
             timestamp: DateTime.now(),
           ),

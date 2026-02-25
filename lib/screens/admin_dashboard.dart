@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../theme_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'supabase_service.dart';
 import 'home_screen.dart';
 import 'chat_screen.dart';
@@ -726,41 +727,43 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 colors: [colors.backgroundStart, colors.backgroundEnd],
               ),
             ),
-            child: Scrollbar(
-              thumbVisibility: true,
-              thickness: 8,
-              radius: const Radius.circular(4),
-              child: SingleChildScrollView(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1200),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          // Sync Google Sheets Card
-                          _buildSyncCard(colors),
-                          const SizedBox(height: 16),
+            child: SelectionArea(
+              child: Scrollbar(
+                thumbVisibility: true,
+                thickness: 8,
+                radius: const Radius.circular(4),
+                child: SingleChildScrollView(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            // Sync Google Sheets Card
+                            _buildSyncCard(colors),
+                            const SizedBox(height: 16),
 
-                          // Upload File Card
-                          _buildUploadCard(colors),
-                          const SizedBox(height: 16),
+                            // Upload File Card
+                            _buildUploadCard(colors),
+                            const SizedBox(height: 16),
 
-                          // Clear Data Card
-                          _buildClearDataCard(colors),
-                          const SizedBox(height: 16),
+                            // Clear Data Card
+                            _buildClearDataCard(colors),
+                            const SizedBox(height: 16),
 
-                          // AI Model Card
-                          _buildAiModelCard(colors),
-                          const SizedBox(height: 16),
+                            // AI Model Card
+                            _buildAiModelCard(colors),
+                            const SizedBox(height: 16),
 
-                          // Team Contacts Card
-                          _buildTeamContactsCard(colors),
-                          const SizedBox(height: 16),
+                            // Team Contacts Card
+                            _buildTeamContactsCard(colors),
+                            const SizedBox(height: 16),
 
-                          // API Usage Section
-                          _buildApiUsageSection(colors),
-                        ],
+                            // API Usage Section
+                            _buildApiUsageSection(colors),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1181,6 +1184,45 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     color: colors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                InkWell(
+                  onTap: () async {
+                    final Uri url = Uri.parse(
+                      'https://docs.google.com/spreadsheets/d/17QjxpK8e65ZO0WOr0UekA3xLAlMthJ7U88ptzDpcg4M/edit?gid=0#gid=0',
+                    );
+                    if (!await launchUrl(url)) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Could not open link'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 4.0,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.link, color: colors.buttonPrimary, size: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Link',
+                          style: TextStyle(
+                            color: colors.buttonPrimary,
+                            fontSize: 14,
+                            decoration: TextDecoration.underline,
+                            decorationColor: colors.buttonPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const Spacer(),

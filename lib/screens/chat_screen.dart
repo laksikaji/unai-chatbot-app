@@ -2095,18 +2095,20 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Column(
                       children: [
                         Expanded(
-                          child: ListView.builder(
-                            controller: _scrollController,
-                            padding: const EdgeInsets.all(16),
-                            itemCount: _isGuestMode
-                                ? _guestMessages.length
-                                : _messages.length,
-                            itemBuilder: (context, index) {
-                              final message = _isGuestMode
-                                  ? _guestMessages[index]
-                                  : _messages[index];
-                              return _buildMessageBubble(message, colors);
-                            },
+                          child: SelectionArea(
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.all(16),
+                              itemCount: _isGuestMode
+                                  ? _guestMessages.length
+                                  : _messages.length,
+                              itemBuilder: (context, index) {
+                                final message = _isGuestMode
+                                    ? _guestMessages[index]
+                                    : _messages[index];
+                                return _buildMessageBubble(message, colors);
+                              },
+                            ),
                           ),
                         ),
                         _buildInputArea(colors),

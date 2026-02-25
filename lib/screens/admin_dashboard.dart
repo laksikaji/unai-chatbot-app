@@ -40,6 +40,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   int _uploadCount = 0;
   int _totalCount = 0;
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +57,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   void dispose() {
     _countdownTimer?.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -547,77 +550,79 @@ class _AdminDashboardState extends State<AdminDashboard> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Container(
-                padding: const EdgeInsets.all(32),
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'FILE FORMAT GUIDE',
-                      style: TextStyle(
-                        color: colors.textPrimary,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.2,
+              child: SelectionArea(
+                child: Container(
+                  padding: const EdgeInsets.all(32),
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'FILE FORMAT GUIDE',
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: colors.inputField,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'รองรับไฟล์ CSV และ Excel (.xlsx, .xls)\nโดยในแถวแรกต้องมีหัวข้อครบตามนี้',
-                            style: TextStyle(
-                              color: colors.textPrimary,
-                              fontSize: 15,
-                              height: 1.6,
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: colors.inputField,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'รองรับไฟล์ CSV และ Excel (.xlsx, .xls)\nโดยในแถวแรกต้องมีหัวข้อครบตามนี้',
+                              style: TextStyle(
+                                color: colors.textPrimary,
+                                fontSize: 15,
+                                height: 1.6,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
+                            const SizedBox(height: 16),
+                            Text(
+                              'ประเภทหลัก | ประเภท | อาการ | ข้อสังเกตุ | ตรวจสอบเบื้องต้น | สาเหตุที่อาจเป็นไปได้ | วิธีแก้ | ผู้แก้ปัญหาเบื้องต้น',
+                              style: TextStyle(
+                                color: colors.textPrimary,
+                                fontSize: 14,
+                                height: 1.8,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: 120,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.buttonSecondary,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'ประเภทหลัก | ประเภท | อาการ | ข้อสังเกตุ | ตรวจสอบเบื้องต้น | สาเหตุที่อาจเป็นไปได้ | วิธีแก้ | ผู้แก้ปัญหาเบื้องต้น',
+                          child: Text(
+                            'CLOSE',
                             style: TextStyle(
                               color: colors.textPrimary,
                               fontSize: 14,
-                              height: 1.8,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.0,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: 120,
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.buttonSecondary,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'CLOSE',
-                          style: TextStyle(
-                            color: colors.textPrimary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1.0,
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
@@ -729,10 +734,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             child: SelectionArea(
               child: Scrollbar(
+                controller: _scrollController,
                 thumbVisibility: true,
                 thickness: 8,
                 radius: const Radius.circular(4),
                 child: SingleChildScrollView(
+                  controller: _scrollController,
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 1200),

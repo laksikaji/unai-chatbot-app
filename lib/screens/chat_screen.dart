@@ -1750,67 +1750,69 @@ class _ChatScreenState extends State<ChatScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Container(
-                padding: const EdgeInsets.all(32),
-                constraints: const BoxConstraints(
-                  maxWidth: 600,
-                  maxHeight: 450,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'GUIDE QUESTIONS',
-                      style: TextStyle(
-                        color: colors.textPrimary,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: colors.inputField,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: colors.divider.withValues(alpha: 0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Text(
-                        'การบอกข้อมูลที่ครบถ้วนจะทำให้บอทตอบคำถามได้ดีขึ้น โดยระบุอุปกรณ์ ระบบที่ใช้และอาการที่เกิดและลักษณะไฟ LED\n\nเช่น ใช้ TAG ระบบ บลูทูธ โดยมีอาการคือ ไม่พบ TAG หน้า UI เพียงตัวเดียวและ TAG ไม่มีไฟกระพริบ',
-                        textAlign: TextAlign.center,
+              child: SelectionArea(
+                child: Container(
+                  padding: const EdgeInsets.all(32),
+                  constraints: const BoxConstraints(
+                    maxWidth: 600,
+                    maxHeight: 450,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'GUIDE QUESTIONS',
                         style: TextStyle(
                           color: colors.textPrimary,
-                          fontSize: 16,
-                          height: 1.8,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.buttonSecondary,
-                        foregroundColor: colors.textPrimary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 12,
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: colors.inputField,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: colors.divider.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        child: Text(
+                          'การบอกข้อมูลที่ครบถ้วนจะทำให้บอทตอบคำถามได้ดีขึ้น โดยระบุอุปกรณ์ ระบบที่ใช้และอาการที่เกิดและลักษณะไฟ LED\n\nเช่น ใช้ TAG ระบบ บลูทูธ โดยมีอาการคือ ไม่พบ TAG หน้า UI เพียงตัวเดียวและ TAG ไม่มีไฟกระพริบ',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: colors.textPrimary,
+                            fontSize: 16,
+                            height: 1.8,
+                          ),
                         ),
                       ),
-                      child: const Text(
-                        'CLOSE',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.buttonSecondary,
+                          foregroundColor: colors.textPrimary,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'CLOSE',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
@@ -2089,32 +2091,45 @@ class _ChatScreenState extends State<ChatScreen> {
                     colors: [colors.backgroundStart, colors.backgroundEnd],
                   ),
                 ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1200),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: SelectionArea(
-                            child: ListView.builder(
-                              controller: _scrollController,
-                              padding: const EdgeInsets.all(16),
-                              itemCount: _isGuestMode
-                                  ? _guestMessages.length
-                                  : _messages.length,
-                              itemBuilder: (context, index) {
-                                final message = _isGuestMode
-                                    ? _guestMessages[index]
-                                    : _messages[index];
-                                return _buildMessageBubble(message, colors);
-                              },
-                            ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SelectionArea(
+                        child: Scrollbar(
+                          controller: _scrollController,
+                          thumbVisibility: true,
+                          thickness: 8,
+                          radius: const Radius.circular(4),
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _isGuestMode
+                                ? _guestMessages.length
+                                : _messages.length,
+                            itemBuilder: (context, index) {
+                              final message = _isGuestMode
+                                  ? _guestMessages[index]
+                                  : _messages[index];
+                              return Center(
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 1200,
+                                  ),
+                                  child: _buildMessageBubble(message, colors),
+                                ),
+                              );
+                            },
                           ),
                         ),
-                        _buildInputArea(colors),
-                      ],
+                      ),
                     ),
-                  ),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1200),
+                        child: _buildInputArea(colors),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               // Floating Help Button

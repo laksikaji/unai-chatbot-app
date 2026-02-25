@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../theme_provider.dart';
 import 'supabase_service.dart';
@@ -2500,24 +2501,85 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              decoration: BoxDecoration(
-                color: message.isUser ? colors.userBubble : colors.botBubble,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                message.text,
-                style: TextStyle(
-                  color: message.isUser
-                      ? Colors.white
-                      : (colors.botBubble.computeLuminance() > 0.5
-                            ? Colors.black87
-                            : Colors.white),
-                  fontSize: 18,
-                  height: 1.6,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: message.isUser
+                        ? colors.userBubble
+                        : colors.botBubble,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: SelectableText(
+                    message.text,
+                    style: TextStyle(
+                      color: message.isUser
+                          ? Colors.white
+                          : (colors.botBubble.computeLuminance() > 0.5
+                                ? Colors.black87
+                                : Colors.white),
+                      fontSize: 18,
+                      height: 1.6,
+                    ),
+                  ),
                 ),
-              ),
+                // Copy button for bot messages
+                if (!message.isUser)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, top: 4),
+                    child: InkWell(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: message.text));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Copied!'),
+                            backgroundColor: colors.buttonPrimary,
+                            duration: const Duration(seconds: 1),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.copy,
+                              size: 14,
+                              color: colors.textSecondary.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Copy',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colors.textSecondary.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],

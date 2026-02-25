@@ -6,6 +6,7 @@ import 'supabase_service.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
 import 'admin_dashboard.dart';
+import '../widgets/typing_indicator.dart';
 
 class ChatScreen extends StatefulWidget {
   final bool isGuest;
@@ -2533,21 +2534,23 @@ class _ChatScreenState extends State<ChatScreen> {
                         : colors.botBubble,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: SelectableText(
-                    message.text,
-                    style: TextStyle(
-                      color: message.isUser
-                          ? Colors.white
-                          : (colors.botBubble.computeLuminance() > 0.5
-                                ? Colors.black87
-                                : Colors.white),
-                      fontSize: 18,
-                      height: 1.6,
-                    ),
-                  ),
+                  child: (!message.isUser && message.text == '...')
+                      ? TypingIndicator(themeColors: colors)
+                      : SelectableText(
+                          message.text,
+                          style: TextStyle(
+                            color: message.isUser
+                                ? Colors.white
+                                : (colors.botBubble.computeLuminance() > 0.5
+                                      ? Colors.black87
+                                      : Colors.white),
+                            fontSize: 18,
+                            height: 1.6,
+                          ),
+                        ),
                 ),
                 // Copy button for bot messages
-                if (!message.isUser)
+                if (!message.isUser && message.text != '...')
                   Padding(
                     padding: const EdgeInsets.only(left: 8, top: 4),
                     child: InkWell(

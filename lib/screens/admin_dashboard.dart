@@ -34,11 +34,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
   // Countdown Timer
   Timer? _countdownTimer;
 
+  // Knowledge Base Stats
+  int _sheetsCount = 0;
+  int _uploadCount = 0;
+  int _totalCount = 0;
+
   @override
   void initState() {
     super.initState();
     _loadSystemSettings();
     _loadTeamContacts();
+    _loadStats();
     // อัปเดต UI ทุก 1 วินาที สำหรับ countdown
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
@@ -49,6 +55,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
   void dispose() {
     _countdownTimer?.cancel();
     super.dispose();
+  }
+
+  Future<void> _loadStats() async {
+    final stats = await _supabaseService.getKnowledgeBaseStats();
+    if (mounted) {
+      setState(() {
+        _sheetsCount = stats['google_sheets'] ?? 0;
+        _uploadCount = stats['admin_upload'] ?? 0;
+        _totalCount = stats['total'] ?? 0;
+      });
+    }
   }
 
   Future<void> _loadSystemSettings() async {
@@ -357,6 +374,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           );
         }
+        await _loadStats();
       } else {
         throw Exception(response.data['error'] ?? 'Sync failed');
       }
@@ -418,6 +436,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           );
         }
+        await _loadStats();
       } else {
         throw Exception(response.data['error'] ?? 'Upload failed');
       }
@@ -501,6 +520,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           );
         }
+        await _loadStats();
       } else {
         throw Exception(response.data['error'] ?? 'Clear data failed');
       }
@@ -1163,6 +1183,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const Spacer(),
+                Text(
+                  '$_sheetsCount rows',
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -1226,6 +1255,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const Spacer(),
+                Text(
+                  '$_uploadCount rows',
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -1283,6 +1321,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   'Clear Data',
                   style: TextStyle(
                     color: colors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '$_totalCount rows',
+                  style: TextStyle(
+                    color: Colors.red,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),

@@ -247,4 +247,38 @@ class SupabaseService {
   Future<void> deleteTeamContact(String id) async {
     await client.from('team_contacts').delete().eq('id', id);
   }
+
+  // Knowledge Base Stats
+  Future<Map<String, int>> getKnowledgeBaseStats() async {
+    try {
+      // Get count for google_sheets
+      final googleSheetsResponse = await client
+          .from('troubleshooting_guide')
+          .select('id')
+          .eq('sheet_source', 'google_sheets')
+          .count(CountOption.exact);
+
+      // Get count for admin_upload
+      final adminUploadResponse = await client
+          .from('troubleshooting_guide')
+          .select('id')
+          .eq('sheet_source', 'admin_upload')
+          .count(CountOption.exact);
+
+      // Get total count
+      final totalResponse = await client
+          .from('troubleshooting_guide')
+          .select('id')
+          .count(CountOption.exact);
+
+      return {
+        'google_sheets': googleSheetsResponse.count,
+        'admin_upload': adminUploadResponse.count,
+        'total': totalResponse.count,
+      };
+    } catch (e) {
+      debugPrint('Error getting knowledge base stats: $e');
+      return {'google_sheets': 0, 'admin_upload': 0, 'total': 0};
+    }
+  }
 }

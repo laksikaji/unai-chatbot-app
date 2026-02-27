@@ -281,4 +281,36 @@ class SupabaseService {
       return {'google_sheets': 0, 'admin_upload': 0, 'total': 0};
     }
   }
+
+  // Get Troubleshooting Data with pagination and search
+  Future<List<Map<String, dynamic>>> getTroubleshootingData({
+    int limit = 5,
+    int offset = 0,
+    String? searchQuery,
+  }) async {
+    try {
+      var filterBuilder = client.from('troubleshooting_guide').select();
+
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        // Because we don't know the exact columns for sure, we can search in text columns
+        // Assuming common Thai column names might be present, or 'content' if it's lumped
+        // It's safer to not filter on Supabase if columns are unknown, but let's try a broad search
+        // or just let the user know if columns are specific.
+        // A common pattern is searching multiple columns. We will try common ones based on the prompt.
+        final searchPattern = '%${searchQuery.trim()}%';
+        filterBuilder = filterBuilder.or(
+          'category.ilike.$searchPattern,subcategory.ilike.$searchPattern,symptom_description.ilike.$searchPattern,observation.ilike.$searchPattern,initial_check.ilike.$searchPattern,possible_causes.ilike.$searchPattern,solution.ilike.$searchPattern,responsible_party.ilike.$searchPattern,search_keywords.ilike.$searchPattern',
+        );
+      }
+
+      final response = await filterBuilder
+          .order('id', ascending: false)
+          .range(offset, offset + limit - 1);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint('Error getting troubleshooting data: $e');
+      return [];
+    }
+  }
 }

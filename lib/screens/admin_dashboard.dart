@@ -8,6 +8,7 @@ import 'supabase_service.dart';
 import 'home_screen.dart';
 import 'chat_screen.dart';
 import '../services/system_settings_service.dart';
+import '../widgets/data_preview_dialog.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -1373,6 +1374,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(Icons.search, color: colors.textSecondary),
+                  tooltip: 'Preview Data',
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const DataPreviewDialog(),
+                    );
+                  },
                 ),
                 const Spacer(),
                 Text(

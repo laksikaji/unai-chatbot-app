@@ -431,15 +431,25 @@ class _AdminDashboardState extends State<AdminDashboard> {
       );
 
       if (response.status == 200) {
+        final insertedCount = response.data['inserted_count'] ?? 0;
+        final duplicatedCount = response.data['duplicated_count'] ?? 0;
+        final message = response.data['message'] ?? 'Upload completed';
+        final duplicatedRows =
+            response.data['duplicated_rows'] as List<dynamic>? ?? [];
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'Uploaded! Processed ${response.data['records']} records',
-              ),
-              backgroundColor: Colors.green,
+              content: Text(message),
+              backgroundColor: duplicatedCount > 0 && insertedCount == 0
+                  ? Colors.red
+                  : (duplicatedCount > 0 ? Colors.orange : Colors.green),
             ),
           );
+
+          if (duplicatedCount > 0 && duplicatedRows.isNotEmpty) {
+            _showDuplicatedRowsDialog(duplicatedCount, duplicatedRows);
+          }
         }
         await _loadStats();
       } else {
@@ -456,6 +466,433 @@ class _AdminDashboardState extends State<AdminDashboard> {
         _isUploading = false;
       });
     }
+  }
+
+  void _showDuplicatedRowsDialog(int count, List<dynamic> rows) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return AlertDialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Row(
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.orange,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Found $count Exact Duplicates',
+                    style: TextStyle(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+              content: Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.9,
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'These records already exist in the database and were skipped to avoid duplicates. Here is the comparison:',
+                      style: TextStyle(
+                        color: colors.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: colors.textSecondary.withValues(alpha: 0.2),
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: DataTable(
+                                headingRowColor: WidgetStateProperty.all(
+                                  colors.appBar.withValues(alpha: 0.5),
+                                ),
+                                columnSpacing: 16,
+                                dataRowMaxHeight: 80,
+                                dataRowMinHeight: 48,
+                                columns: [
+                                  DataColumn(
+                                    label: Text(
+                                      'ประเภทหลัก',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'ประเภท',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'อาการ',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'ข้อสังเกตุ',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'ตรวจสอบเบื้องต้น',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'สาเหตุที่อาจเป็นไปได้',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'วิธีแก้',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'ผู้แก้ปัญหาเบื้องต้น',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'สถานะ',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                rows: rows.expand<DataRow>((row) {
+                                  // For each exact duplicate, we show 2 rows: (Old) and (New)
+                                  return [
+                                    DataRow(
+                                      color: WidgetStateProperty.all(
+                                        colors.inputField.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                      ),
+                                      cells: [
+                                        DataCell(
+                                          Text(
+                                            row['category'] ?? '-',
+                                            style: TextStyle(
+                                              color: colors.textSecondary,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Text(
+                                            row['subcategory'] ?? '-',
+                                            style: TextStyle(
+                                              color: colors.textSecondary,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 150,
+                                            child: Text(
+                                              row['symptom_description'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textSecondary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 120,
+                                            child: Text(
+                                              row['observation'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textSecondary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 150,
+                                            child: Text(
+                                              row['initial_check'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textSecondary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 150,
+                                            child: Text(
+                                              row['possible_causes'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textSecondary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 200,
+                                            child: Text(
+                                              row['solution'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textSecondary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Text(
+                                            row['responsible_party'] ?? '-',
+                                            style: TextStyle(
+                                              color: colors.textSecondary,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: const Text(
+                                              '(เดิม)',
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    DataRow(
+                                      color: WidgetStateProperty.all(
+                                        colors.inputField,
+                                      ),
+                                      cells: [
+                                        DataCell(
+                                          Text(
+                                            row['category'] ?? '-',
+                                            style: TextStyle(
+                                              color: colors.textPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Text(
+                                            row['subcategory'] ?? '-',
+                                            style: TextStyle(
+                                              color: colors.textPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 150,
+                                            child: Text(
+                                              row['symptom_description'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textPrimary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 120,
+                                            child: Text(
+                                              row['observation'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textPrimary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 150,
+                                            child: Text(
+                                              row['initial_check'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textPrimary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 150,
+                                            child: Text(
+                                              row['possible_causes'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textPrimary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 200,
+                                            child: Text(
+                                              row['solution'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textPrimary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Text(
+                                            row['responsible_party'] ?? '-',
+                                            style: TextStyle(
+                                              color: colors.textPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.orange.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: const Text(
+                                              '(ใหม่)',
+                                              style: TextStyle(
+                                                color: Colors.orange,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ];
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    backgroundColor: colors.buttonPrimary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: Text(
+                    'Got It',
+                    style: TextStyle(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   // Clear All Data

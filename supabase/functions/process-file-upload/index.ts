@@ -194,15 +194,51 @@ serve(async (req: any) => {
             return record;
         }).filter(r => r.category || r.symptom_description);
 
-        console.log(`=== GENERATING EMBEDDINGS (${recordsToProcess.length} records) ===`);
+        // 1. Fetch existing records to check for exact duplicates
+        const { data: existingRecords, error: fetchError } = await supabase
+            .from('troubleshooting_guide')
+            .select('category, subcategory, symptom_description, possible_causes, solution');
+
+        if (fetchError) {
+            console.error('Error fetching existing records:', fetchError);
+            throw fetchError;
+        }
+
+        const duplicateRecords: any[] = [];
+        const newRecordsToProcess: any[] = [];
+
+        // 2. Separate duplicates and new records
+        for (const record of recordsToProcess) {
+            const isDuplicate = existingRecords && existingRecords.some((ex: any) =>
+                (String(ex.category || '').trim() === String(record.category || '').trim()) &&
+                (String(ex.subcategory || '').trim() === String(record.subcategory || '').trim()) &&
+                (String(ex.symptom_description || '').trim() === String(record.symptom_description || '').trim()) &&
+                (String(ex.possible_causes || '').trim() === String(record.possible_causes || '').trim()) &&
+                (String(ex.solution || '').trim() === String(record.solution || '').trim())
+            );
+
+            if (isDuplicate) {
+                const { embeddingContent, search_keywords, sheet_source, ...safeRecord } = record;
+                duplicateRecords.push(safeRecord);
+            } else {
+                newRecordsToProcess.push(record);
+                if (existingRecords) {
+                    existingRecords.push(record); // Prevent duplicates within the same uploaded file
+                }
+            }
+        }
+
+        console.log(`Found ${duplicateRecords.length} duplicates, ${newRecordsToProcess.length} new records to process.`);
+
+        console.log(`=== GENERATING EMBEDDINGS (${newRecordsToProcess.length} records) ===`);
 
         const recordsWithEmbeddings: any[] = [];
         let successCount = 0;
         const BATCH_SIZE = 5;
 
-        for (let i = 0; i < recordsToProcess.length; i += BATCH_SIZE) {
-            const batch = recordsToProcess.slice(i, i + BATCH_SIZE);
-            console.log(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(recordsToProcess.length / BATCH_SIZE)}...`);
+        for (let i = 0; i < newRecordsToProcess.length; i += BATCH_SIZE) {
+            const batch = newRecordsToProcess.slice(i, i + BATCH_SIZE);
+            console.log(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(newRecordsToProcess.length / BATCH_SIZE)}...`);
 
             await Promise.all(batch.map(async (record) => {
                 let embedding = null;
@@ -222,16 +258,38 @@ serve(async (req: any) => {
             await logEmbeddingUsage(supabase, successCount);
         }
 
-        if (recordsWithEmbeddings.length === 0) throw new Error('No valid records found.');
-
-        const { error: insertError } = await supabase
-            .from('troubleshooting_guide').insert(recordsWithEmbeddings);
-        if (insertError) throw insertError;
+        if (recordsWithEmbeddings.length > 0) {
+            const { error: insertError } = await supabase
+                .from('troubleshooting_guide').insert(recordsWithEmbeddings);
+            if (insertError) throw insertError;
+        }
 
         await supabase.storage.from('admin-uploads').remove([fileName]);
 
+        const totalProcessed = recordsWithEmbeddings.length;
+        const totalDuplicated = duplicateRecords.length;
+
+        if (totalProcessed === 0 && totalDuplicated === 0) {
+            throw new Error('No valid records found in the uploaded file.');
+        }
+
+        let responseMessage = '';
+        if (totalProcessed > 0 && totalDuplicated > 0) {
+            responseMessage = `Successfully added ${totalProcessed} records, found ${totalDuplicated} exact duplicates.`;
+        } else if (totalProcessed > 0 && totalDuplicated === 0) {
+            responseMessage = `Successfully added ${totalProcessed} records.`;
+        } else if (totalProcessed === 0 && totalDuplicated > 0) {
+            responseMessage = `All ${totalDuplicated} records are exact duplicates (No new records added).`;
+        }
+
         return new Response(
-            JSON.stringify({ success: true, records: recordsWithEmbeddings.length, message: `Successfully processed ${recordsWithEmbeddings.length} records` }),
+            JSON.stringify({
+                success: true,
+                inserted_count: totalProcessed,
+                duplicated_count: totalDuplicated,
+                duplicated_rows: duplicateRecords,
+                message: responseMessage
+            }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
     } catch (error: any) {

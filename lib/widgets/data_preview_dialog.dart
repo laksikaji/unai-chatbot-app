@@ -212,102 +212,118 @@ class _DataPreviewDialogState extends State<DataPreviewDialog> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: DataTable2(
-                              minWidth: 1600,
-                              headingRowColor: WidgetStateProperty.resolveWith(
-                                (states) => colors.appBar,
+                            child: Scrollbar(
+                              controller: _horizontalScrollController,
+                              thumbVisibility: true,
+                              trackVisibility: true,
+                              child: DataTable2(
+                                minWidth: 1600,
+                                scrollController: _verticalScrollController,
+                                horizontalScrollController:
+                                    _horizontalScrollController,
+                                headingRowColor:
+                                    WidgetStateProperty.resolveWith(
+                                      (states) => colors.appBar,
+                                    ),
+                                dataRowColor: WidgetStateProperty.resolveWith(
+                                  (states) => colors.dialogBackground,
+                                ),
+                                headingTextStyle: TextStyle(
+                                  color: colors.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                dataTextStyle: TextStyle(
+                                  color: colors.textPrimary,
+                                ),
+                                columns: const [
+                                  DataColumn2(
+                                    label: Text('ประเภทหลัก'),
+                                    size: ColumnSize.M,
+                                  ),
+                                  DataColumn2(
+                                    label: Text('ประเภท'),
+                                    size: ColumnSize.M,
+                                  ),
+                                  DataColumn2(
+                                    label: Text('อาการ'),
+                                    size: ColumnSize.L,
+                                  ),
+                                  DataColumn2(
+                                    label: Text('ข้อสังเกตุ'),
+                                    size: ColumnSize.L,
+                                  ),
+                                  DataColumn2(
+                                    label: Text('ตรวจสอบเบื้องต้น'),
+                                    size: ColumnSize.L,
+                                  ),
+                                  DataColumn2(
+                                    label: Text('สาเหตุที่อาจเป็นไปได้'),
+                                    size: ColumnSize.L,
+                                  ),
+                                  DataColumn2(
+                                    label: Text('วิธีแก้'),
+                                    size: ColumnSize.L,
+                                  ),
+                                  DataColumn2(
+                                    label: Text('ผู้แก้ปัญหาเบื้องต้น'),
+                                    size: ColumnSize.M,
+                                  ),
+                                ],
+                                rows: _data.map((item) {
+                                  return DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text(
+                                          item['category']?.toString() ?? '-',
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          item['subcategory']?.toString() ??
+                                              '-',
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          item['symptom_description']
+                                                  ?.toString() ??
+                                              '-',
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          item['observation']?.toString() ??
+                                              '-',
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          item['initial_check']?.toString() ??
+                                              '-',
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          item['possible_causes']?.toString() ??
+                                              '-',
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          item['solution']?.toString() ?? '-',
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          item['responsible_party']
+                                                  ?.toString() ??
+                                              '-',
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
                               ),
-                              dataRowColor: WidgetStateProperty.resolveWith(
-                                (states) => colors.dialogBackground,
-                              ),
-                              headingTextStyle: TextStyle(
-                                color: colors.textPrimary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              dataTextStyle: TextStyle(
-                                color: colors.textPrimary,
-                              ),
-                              columns: const [
-                                DataColumn2(
-                                  label: Text('ประเภทหลัก'),
-                                  size: ColumnSize.M,
-                                ),
-                                DataColumn2(
-                                  label: Text('ประเภท'),
-                                  size: ColumnSize.M,
-                                ),
-                                DataColumn2(
-                                  label: Text('อาการ'),
-                                  size: ColumnSize.L,
-                                ),
-                                DataColumn2(
-                                  label: Text('ข้อสังเกตุ'),
-                                  size: ColumnSize.L,
-                                ),
-                                DataColumn2(
-                                  label: Text('ตรวจสอบเบื้องต้น'),
-                                  size: ColumnSize.L,
-                                ),
-                                DataColumn2(
-                                  label: Text('สาเหตุที่อาจเป็นไปได้'),
-                                  size: ColumnSize.L,
-                                ),
-                                DataColumn2(
-                                  label: Text('วิธีแก้'),
-                                  size: ColumnSize.L,
-                                ),
-                                DataColumn2(
-                                  label: Text('ผู้แก้ปัญหาเบื้องต้น'),
-                                  size: ColumnSize.M,
-                                ),
-                              ],
-                              rows: _data.map((item) {
-                                return DataRow(
-                                  cells: [
-                                    DataCell(
-                                      Text(item['category']?.toString() ?? '-'),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        item['subcategory']?.toString() ?? '-',
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        item['symptom_description']
-                                                ?.toString() ??
-                                            '-',
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        item['observation']?.toString() ?? '-',
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        item['initial_check']?.toString() ??
-                                            '-',
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        item['possible_causes']?.toString() ??
-                                            '-',
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(item['solution']?.toString() ?? '-'),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        item['responsible_party']?.toString() ??
-                                            '-',
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
                             ),
                           ),
                         ),

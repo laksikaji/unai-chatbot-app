@@ -282,6 +282,20 @@ class SupabaseService {
     }
   }
 
+  // General Information Stats
+  Future<int> getGeneralInfoCount() async {
+    try {
+      final response = await client
+          .from('general_information')
+          .select('id')
+          .count(CountOption.exact);
+      return response.count;
+    } catch (e) {
+      debugPrint('Error getting general info count: $e');
+      return 0;
+    }
+  }
+
   // Get Troubleshooting Data with pagination and search
   Future<List<Map<String, dynamic>>> getTroubleshootingData({
     int limit = 5,

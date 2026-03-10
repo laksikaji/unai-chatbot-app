@@ -117,10 +117,11 @@ class GeminiChatService {
 
         const systemPrompt = `
       คุณคือ "UNAi" ผู้ช่วย AI อัจฉริยะ
-      หากผู้ใช้ถามกว้างๆ เพื่อให้แนะนำตัว เช่น "คุณรู้อะไรบ้าง", "คุณทำอะไรได้บ้าง" หรือ "คุณคือใคร" ให้ตอบสั้นๆ เพียงแค่ว่า "สวัสดีครับ! ผมคือ UNAi ผู้ช่วย AI อัจฉริยะครับ จากข้อมูลที่ผมมี ผมสามารถให้ความช่วยเหลือและตอบคำถามเกี่ยวกับการใช้งานระบบ UNAi ครับ"
+      หากผู้ใช้ถามกว้างๆ เพื่อให้แนะนำตัว เช่น "คุณรู้อะไรบ้าง", "คุณทำอะไรได้บ้าง" หรือ "คุณคือใคร" ให้ตอบสั้นๆ เพียงแค่ว่า "สวัสดีครับ! ผมคือ UNAi ผู้ช่วย AI อัจฉริยะครับ จากข้อมูลที่ผมมี ผมสามารถให้ความช่วยเหลือและตอบคำถามเกี่ยวกับการใช้งานระบบ UNAi และข้อมูลทั่วไปขององค์กรได้ครับ"
       **บทบาทและหน้าที่ของคุณ:**
       *   ตอบคำถามโดยอ้างอิงจากข้อมูลใน "CONTEXT" ที่ให้มาเท่านั้น
       *   ช่วยเหลือในการแก้ไขปัญหา (Troubleshooting) ตามคู่มือที่มี
+      *   ตอบคำถามเกี่ยวกับข้อมูลทั่วไปขององค์กร เช่น UNAI คืออะไร, จุดแข็ง, ข้อมูลติดต่อ
       *   ให้บริการด้วยความสุภาพ และเป็นมืออาชีพ
       **คำแนะนำในการตอบ:**
       *   ใช้ข้อมูลจาก "CONTEXT" ด้านล่างนี้ในการตอบคำถามเป็นหลัก
@@ -185,10 +186,11 @@ class GroqService {
 
         const systemContent = `
       คุณคือ "UNAi" ผู้ช่วย AI อัจฉริยะ
-      หากผู้ใช้ถามกว้างๆ เพื่อให้แนะนำตัว เช่น "คุณรู้อะไรบ้าง", "คุณทำอะไรได้บ้าง" หรือ "คุณคือใคร" ให้ตอบสั้นๆ เพียงแค่ว่า "สวัสดีครับ! ผมคือ UNAi ผู้ช่วย AI อัจฉริยะครับ จากข้อมูลที่ผมมี ผมสามารถให้ความช่วยเหลือและตอบคำถามเกี่ยวกับการใช้งานระบบ UNAi ครับ"
+      หากผู้ใช้ถามกว้างๆ เพื่อให้แนะนำตัว เช่น "คุณรู้อะไรบ้าง", "คุณทำอะไรได้บ้าง" หรือ "คุณคือใคร" ให้ตอบสั้นๆ เพียงแค่ว่า "สวัสดีครับ! ผมคือ UNAi ผู้ช่วย AI อัจฉริยะครับ จากข้อมูลที่ผมมี ผมสามารถให้ความช่วยเหลือและตอบคำถามเกี่ยวกับการใช้งานระบบ UNAi และข้อมูลทั่วไปขององค์กรได้ครับ"
       **บทบาทและหน้าที่ของคุณ:**
       *   ตอบคำถามโดยอ้างอิงจากข้อมูลใน "CONTEXT" ที่ให้มาเท่านั้น
       *   ช่วยเหลือในการแก้ไขปัญหา (Troubleshooting) ตามคู่มือที่มี
+      *   ตอบคำถามเกี่ยวกับข้อมูลทั่วไปขององค์กร เช่น UNAI คืออะไร, จุดแข็ง, ข้อมูลติดต่อ
       *   ให้บริการด้วยความสุภาพ และเป็นมืออาชีพ
       **คำแนะนำในการตอบ:**
       *   ใช้ข้อมูลจาก "CONTEXT" ด้านล่างนี้ในการตอบคำถามเป็นหลัก
@@ -301,11 +303,13 @@ serve(async (req) => {
 
         // Vector search + บันทึก embedding usage (index 21)
         let contextText = '';
+        let generalInfoContext = '';
         if (embeddingService) {
             const { values: embedding, success: embedSuccess } = await embeddingService.generateEmbedding(message);
             logGeminiUsage(supabase, EMBED_KEY_INDEX, GEMINI_EMBED_LIMIT, embedSuccess);
 
             if (embedding) {
+                // 1) ค้นหาจาก troubleshooting_guide
                 const { data: documents, error: matchError } = await supabase.rpc(
                     'match_troubleshooting_guide',
                     { query_embedding: embedding, match_threshold: 0.5, match_count: 5 }
@@ -317,15 +321,31 @@ serve(async (req) => {
                         `สาเหตุ: ${doc.possible_causes}\n` +
                         `วิธีแก้: ${doc.solution}`
                     ).join('\n---\n');
-                    console.log(`Found ${documents.length} relevant documents.`);
+                    console.log(`Found ${documents.length} troubleshooting documents.`);
                 } else {
-                    if (matchError) console.error('Match error:', matchError);
-                    else console.log('No relevant documents found.');
+                    if (matchError) console.error('Troubleshooting match error:', matchError);
+                    else console.log('No relevant troubleshooting documents found.');
+                }
+
+                // 2) ค้นหาจาก general_information
+                const { data: generalDocs, error: generalError } = await supabase.rpc(
+                    'match_general_information',
+                    { query_embedding: embedding, match_threshold: 0.5, match_count: 3 }
+                );
+                if (!generalError && generalDocs && generalDocs.length > 0) {
+                    generalInfoContext = '\n\n--- ข้อมูลทั่วไปขององค์กร ---\n' +
+                        generalDocs.map((doc: any) =>
+                            `หัวข้อ: ${doc.title}\nเนื้อหา: ${doc.content}`
+                        ).join('\n---\n');
+                    console.log(`Found ${generalDocs.length} general information documents.`);
+                } else {
+                    if (generalError) console.error('General info match error:', generalError);
+                    else console.log('No relevant general information found.');
                 }
             }
         }
 
-        // Fallback text search
+        // Fallback text search (troubleshooting)
         if (!contextText) {
             const { data: textDocs } = await supabase
                 .from('troubleshooting_guide').select('*')
@@ -336,6 +356,21 @@ serve(async (req) => {
                     `หัวข้อ: ${doc.category}\nอาการ: ${doc.symptom_description}\nวิธีแก้: ${doc.solution}`
                 ).join('\n---\n');
                 console.log(`Found ${textDocs.length} documents via text search.`);
+            }
+        }
+
+        // Fallback text search (general_information)
+        if (!generalInfoContext) {
+            const { data: generalTextDocs } = await supabase
+                .from('general_information').select('*')
+                .textSearch('search_keywords', `'${message}'`, { type: 'websearch', config: 'english' })
+                .limit(3);
+            if (generalTextDocs && generalTextDocs.length > 0) {
+                generalInfoContext = '\n\n--- ข้อมูลทั่วไปขององค์กร ---\n' +
+                    generalTextDocs.map((doc: any) =>
+                        `หัวข้อ: ${doc.title}\nเนื้อหา: ${doc.content}`
+                    ).join('\n---\n');
+                console.log(`Found ${generalTextDocs.length} general info via text search.`);
             }
         }
         // ดึงข้อมูลติดต่อทีม
@@ -350,6 +385,7 @@ serve(async (req) => {
                 ).join('\n');
         }
         // append เข้า contextText
+        contextText += generalInfoContext;
         contextText += contactContext;
 
         let responseText = '';

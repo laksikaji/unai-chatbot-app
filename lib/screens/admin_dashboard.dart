@@ -19,6 +19,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   bool _isSyncing = false;
+  bool _isSyncingGeneralInfo = false;
   bool _isUploading = false;
 
   // AI Model Settings
@@ -27,6 +28,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   final _systemSettingsService = SystemSettingsService();
 
   Map<String, dynamic>? _lastSyncData;
+  Map<String, dynamic>? _lastGeneralInfoSyncData;
   final _supabaseService = SupabaseService();
 
   // Team Contacts
@@ -40,6 +42,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   int _sheetsCount = 0;
   int _uploadCount = 0;
   int _totalCount = 0;
+  int _generalInfoCount = 0;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -64,11 +67,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Future<void> _loadStats() async {
     final stats = await _supabaseService.getKnowledgeBaseStats();
+    final generalInfoCount = await _supabaseService.getGeneralInfoCount();
     if (mounted) {
       setState(() {
         _sheetsCount = stats['google_sheets'] ?? 0;
         _uploadCount = stats['admin_upload'] ?? 0;
         _totalCount = stats['total'] ?? 0;
+        _generalInfoCount = generalInfoCount;
       });
     }
   }
@@ -392,6 +397,49 @@ class _AdminDashboardState extends State<AdminDashboard> {
     } finally {
       setState(() {
         _isSyncing = false;
+      });
+    }
+  }
+
+  // Sync General Information
+  Future<void> _syncGeneralInfo() async {
+    setState(() {
+      _isSyncingGeneralInfo = true;
+    });
+
+    try {
+      final response = await _supabaseService.client.functions.invoke(
+        'sync-general-info',
+      );
+
+      if (response.status == 200) {
+        setState(() {
+          _lastGeneralInfoSyncData = response.data;
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Synced ${response.data['records']} general info records!',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        await _loadStats();
+      } else {
+        throw Exception(response.data['error'] ?? 'Sync failed');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      setState(() {
+        _isSyncingGeneralInfo = false;
       });
     }
   }
@@ -1189,6 +1237,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             _buildSyncCard(colors),
                             const SizedBox(height: 16),
 
+                            // Sync General Information Card
+                            _buildGeneralInfoSyncCard(colors),
+                            const SizedBox(height: 16),
+
                             // Upload File Card
                             _buildUploadCard(colors),
                             const SizedBox(height: 16),
@@ -1698,6 +1750,117 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: _isSyncing
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: colors.textPrimary,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        'SYNC NOW',
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGeneralInfoSyncCard(ThemeColors colors) {
+    return Card(
+      color: colors.inputField,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.info_outline, color: colors.textPrimary, size: 32),
+                const SizedBox(width: 12),
+                Text(
+                  'Sync General Information',
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                InkWell(
+                  onTap: () async {
+                    final Uri url = Uri.parse(
+                      'https://docs.google.com/spreadsheets/d/17QjxpK8e65ZO0WOr0UekA3xLAlMthJ7U88ptzDpcg4M/edit?gid=0#gid=0',
+                    );
+                    if (!await launchUrl(url)) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Could not open link'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 4.0,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.link, color: colors.buttonPrimary, size: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Link',
+                          style: TextStyle(
+                            color: colors.buttonPrimary,
+                            fontSize: 14,
+                            decoration: TextDecoration.underline,
+                            decorationColor: colors.buttonPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '$_generalInfoCount rows',
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _lastGeneralInfoSyncData != null
+                  ? 'Last sync: ${_lastGeneralInfoSyncData!['records']} records'
+                  : 'Not synced yet',
+              style: TextStyle(color: colors.textSecondary, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isSyncingGeneralInfo ? null : _syncGeneralInfo,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.buttonSecondary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: _isSyncingGeneralInfo
                     ? SizedBox(
                         height: 20,
                         width: 20,

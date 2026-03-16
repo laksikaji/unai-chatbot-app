@@ -21,6 +21,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _isSyncing = false;
   bool _isSyncingGeneralInfo = false;
   bool _isUploading = false;
+  bool _isUploadingGeneralInfo = false;
 
   // AI Model Settings
   bool _isLoadingModel = false;
@@ -43,6 +44,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   int _uploadCount = 0;
   int _totalCount = 0;
   int _generalInfoCount = 0;
+  int _generalInfoUploadCount = 0;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -68,12 +70,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Future<void> _loadStats() async {
     final stats = await _supabaseService.getKnowledgeBaseStats();
     final generalInfoCount = await _supabaseService.getGeneralInfoCount();
+    final generalInfoUploadCount = await _supabaseService.getGeneralInfoUploadCount();
     if (mounted) {
       setState(() {
         _sheetsCount = stats['google_sheets'] ?? 0;
         _uploadCount = stats['admin_upload'] ?? 0;
         _totalCount = stats['total'] ?? 0;
         _generalInfoCount = generalInfoCount;
+        _generalInfoUploadCount = generalInfoUploadCount;
       });
     }
   }
@@ -943,6 +947,325 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  // Upload General Information File
+  Future<void> _uploadGeneralInfoFile() async {
+    try {
+      // Pick file
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['csv', 'xlsx', 'xls'],
+      );
+
+      if (result == null) return;
+
+      setState(() {
+        _isUploadingGeneralInfo = true;
+      });
+
+      final fileBytes = result.files.first.bytes;
+      final fileName =
+          'upload_gi_${DateTime.now().millisecondsSinceEpoch}.${result.files.first.extension}';
+
+      if (fileBytes == null) {
+        throw Exception('Failed to read file');
+      }
+
+      // Upload to Supabase Storage
+      await _supabaseService.client.storage
+          .from('admin-uploads')
+          .uploadBinary(fileName, fileBytes);
+
+      // Process file
+      final response = await _supabaseService.client.functions.invoke(
+        'process-general-info-upload',
+        body: {'fileName': fileName},
+      );
+
+      if (response.status == 200) {
+        final insertedCount = response.data['inserted_count'] ?? 0;
+        final duplicatedCount = response.data['duplicated_count'] ?? 0;
+        final message = response.data['message'] ?? 'Upload completed';
+        final duplicatedRows =
+            response.data['duplicated_rows'] as List<dynamic>? ?? [];
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: duplicatedCount > 0 && insertedCount == 0
+                  ? Colors.red
+                  : (duplicatedCount > 0 ? Colors.orange : Colors.green),
+            ),
+          );
+
+          if (duplicatedCount > 0 && duplicatedRows.isNotEmpty) {
+            _showGeneralInfoDuplicatedRowsDialog(
+                duplicatedCount, duplicatedRows);
+          }
+        }
+        await _loadStats();
+      } else {
+        throw Exception(response.data['error'] ?? 'Upload failed');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      setState(() {
+        _isUploadingGeneralInfo = false;
+      });
+    }
+  }
+
+  void _showGeneralInfoDuplicatedRowsDialog(int count, List<dynamic> rows) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final colors = themeProvider.colors;
+            return AlertDialog(
+              backgroundColor: colors.dialogBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Row(
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.orange,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Found $count Exact Duplicates',
+                    style: TextStyle(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+              content: Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.9,
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'These records already exist in the database and were skipped to avoid duplicates. Here is the comparison:',
+                      style: TextStyle(
+                        color: colors.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: colors.textSecondary.withValues(alpha: 0.2),
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: DataTable(
+                                headingRowColor: WidgetStateProperty.all(
+                                  colors.appBar.withValues(alpha: 0.5),
+                                ),
+                                columnSpacing: 16,
+                                dataRowMaxHeight: 80,
+                                dataRowMinHeight: 48,
+                                columns: [
+                                  DataColumn(
+                                    label: Text(
+                                      'หัวข้อ',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'เนื้อหา',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      'สถานะ',
+                                      style: TextStyle(
+                                        color: colors.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                rows: rows.expand<DataRow>((row) {
+                                  return [
+                                    DataRow(
+                                      color: WidgetStateProperty.all(
+                                        colors.inputField.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                      ),
+                                      cells: [
+                                        DataCell(
+                                          SizedBox(
+                                            width: 200,
+                                            child: Text(
+                                              row['title'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textSecondary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 400,
+                                            child: Text(
+                                              row['content'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textSecondary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: const Text(
+                                              '(เดิม)',
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    DataRow(
+                                      color: WidgetStateProperty.all(
+                                        colors.inputField,
+                                      ),
+                                      cells: [
+                                        DataCell(
+                                          SizedBox(
+                                            width: 200,
+                                            child: Text(
+                                              row['title'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textPrimary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          SizedBox(
+                                            width: 400,
+                                            child: Text(
+                                              row['content'] ?? '-',
+                                              style: TextStyle(
+                                                color: colors.textPrimary,
+                                              ),
+                                              maxLines: 3,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.orange.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: const Text(
+                                              '(ใหม่)',
+                                              style: TextStyle(
+                                                color: Colors.orange,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ];
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    backgroundColor: colors.buttonPrimary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: Text(
+                    'Got It',
+                    style: TextStyle(
+                      color: colors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   // Clear All Data
   Future<void> _clearAllData() async {
     // Show confirmation dialog
@@ -1071,15 +1394,65 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'ประเภทหลัก | ประเภท | อาการ | ข้อสังเกตุ | ตรวจสอบเบื้องต้น | สาเหตุที่อาจเป็นไปได้ | วิธีแก้ | ผู้แก้ปัญหาเบื้องต้น',
-                              style: TextStyle(
-                                color: colors.textPrimary,
-                                fontSize: 14,
-                                height: 1.8,
+                            const SizedBox(height: 20),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: colors.backgroundStart.withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              textAlign: TextAlign.center,
+                              child: Column(
+                                children: [
+                                  Text(
+                                    '📋 ข้อมูลปัญหา (Troubleshooting)',
+                                    style: TextStyle(
+                                      color: colors.textPrimary,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'ประเภทหลัก | ประเภท | อาการ | ข้อสังเกตุ | ตรวจสอบเบื้องต้น | สาเหตุที่อาจเป็นไปได้ | วิธีแก้ | ผู้แก้ปัญหาเบื้องต้น',
+                                    style: TextStyle(
+                                      color: colors.textPrimary,
+                                      fontSize: 13,
+                                      height: 1.8,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: colors.backgroundStart.withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'ℹ️ ข้อมูลทั่วไป (General Information)',
+                                    style: TextStyle(
+                                      color: colors.textPrimary,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'หัวข้อ | เนื้อหา',
+                                    style: TextStyle(
+                                      color: colors.textPrimary,
+                                      fontSize: 13,
+                                      height: 1.8,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -1241,8 +1614,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             _buildGeneralInfoSyncCard(colors),
                             const SizedBox(height: 16),
 
-                            // Upload File Card
+                            // Upload Troubleshooting File Card
                             _buildUploadCard(colors),
+                            const SizedBox(height: 16),
+
+                            // Upload General Information File Card
+                            _buildGeneralInfoUploadCard(colors),
                             const SizedBox(height: 16),
 
                             // Clear Data Card
@@ -1895,10 +2272,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
           children: [
             Row(
               children: [
-                Icon(Icons.upload_file, color: colors.textPrimary, size: 32),
+                Icon(Icons.build, color: colors.textPrimary, size: 32),
                 const SizedBox(width: 12),
                 Text(
-                  'Upload File',
+                  'Upload Troubleshooting Data',
                   style: TextStyle(
                     color: colors.textPrimary,
                     fontSize: 20,
@@ -1918,7 +2295,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Upload CSV or Excel file directly (instant update)',
+              'Upload CSV or Excel file for troubleshooting data (instant update)',
               style: TextStyle(color: colors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 16),
@@ -1940,7 +2317,78 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ),
                       )
                     : Text(
-                        'UPLOAD FILE',
+                        'UPLOAD TROUBLESHOOTING FILE',
+                        style: TextStyle(
+                          color: colors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGeneralInfoUploadCard(ThemeColors colors) {
+    return Card(
+      color: colors.inputField,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.info_outline, color: colors.textPrimary, size: 32),
+                const SizedBox(width: 12),
+                Text(
+                  'Upload General Information',
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '$_generalInfoUploadCount rows',
+                  style: TextStyle(
+                    color: colors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Upload CSV or Excel file for general information (instant update)',
+              style: TextStyle(color: colors.textSecondary, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed:
+                    _isUploadingGeneralInfo ? null : _uploadGeneralInfoFile,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.buttonSecondary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: _isUploadingGeneralInfo
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: colors.textPrimary,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        'UPLOAD GENERAL INFO FILE',
                         style: TextStyle(
                           color: colors.textPrimary,
                           fontSize: 16,

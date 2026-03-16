@@ -296,6 +296,21 @@ class SupabaseService {
     }
   }
 
+  // General Information Upload Stats
+  Future<int> getGeneralInfoUploadCount() async {
+    try {
+      final response = await client
+          .from('general_information')
+          .select('id')
+          .eq('sheet_source', 'admin_upload')
+          .count(CountOption.exact);
+      return response.count;
+    } catch (e) {
+      debugPrint('Error getting general info upload count: $e');
+      return 0;
+    }
+  }
+
   // Get Troubleshooting Data with pagination and search
   Future<List<Map<String, dynamic>>> getTroubleshootingData({
     int limit = 5,

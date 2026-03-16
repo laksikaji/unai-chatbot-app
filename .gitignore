@@ -35,3 +35,6 @@ lib/config/supabase_config.dart
 
 # Firebase
 .firebase/
+
+# pdf
+*.pdf

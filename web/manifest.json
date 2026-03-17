@@ -1,6 +1,6 @@
 {
-    "name": "unai_chatbot_app",
-    "short_name": "unai_chatbot_app",
+    "name": "UNAi Chatbot",
+    "short_name": "UNAi Chatbot",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

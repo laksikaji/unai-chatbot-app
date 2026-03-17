@@ -1626,12 +1626,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             _buildClearDataCard(colors),
                             const SizedBox(height: 16),
 
-                            // AI Model Card
-                            _buildAiModelCard(colors),
-                            const SizedBox(height: 16),
-
                             // Team Contacts Card
                             _buildTeamContactsCard(colors),
+                            const SizedBox(height: 16),
+
+                            // AI Model Card
+                            _buildAiModelCard(colors),
                             const SizedBox(height: 16),
 
                             // API Usage Section

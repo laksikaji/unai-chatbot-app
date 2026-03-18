@@ -1380,7 +1380,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
                           color: colors.inputField,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: colors.divider.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -1404,7 +1408,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               child: Column(
                                 children: [
                                   Text(
-                                    '📋 ข้อมูลปัญหา (Troubleshooting)',
+                                    'ข้อมูลปัญหา (Troubleshooting)',
                                     style: TextStyle(
                                       color: colors.textPrimary,
                                       fontSize: 15,
@@ -1434,7 +1438,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               child: Column(
                                 children: [
                                   Text(
-                                    'ℹ️ ข้อมูลทั่วไป (General Information)',
+                                    'ข้อมูลทั่วไป (General Information)',
                                     style: TextStyle(
                                       color: colors.textPrimary,
                                       fontSize: 15,
